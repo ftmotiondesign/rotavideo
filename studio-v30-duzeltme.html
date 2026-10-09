@@ -326,7 +326,7 @@ function showKeys(){
   select.textContent=key.sec.toFixed(1)+' sn | Zoom '+key.zoom.toFixed(1)+' | Yön '+Math.round(key.bearing)+'°';
   select.onclick=()=>{cameraTime.value=key.sec;updateTimeLabel();map.jumpTo({center:key.center,zoom:key.zoom,bearing:key.bearing,pitch:key.pitch});syncCameraInputs();};
   const del=document.createElement('button');del.type='button';del.textContent='Sil';del.title='Bu anahtar kareyi sil';
-  del.onclick=()=>{manualKeys.splice(idx,1);if(!manualKeys.length)studio('manualEnabled').checked=false;showKeys();persistKeys();};
+  del.onclick=()=>{rememberCamera();manualKeys.splice(idx,1);if(!manualKeys.length)studio('manualEnabled').checked=false;showKeys();persistKeys();};
   row.append(select,del);list.appendChild(row);
  });
 }
@@ -352,13 +352,14 @@ map.on('moveend',()=>{if(!animFrame)syncCameraInputs();});
 studio('saveKey').onclick=()=>{
  const sec=Number(cameraTime.value),center=map.getCenter();
  const k={sec,center:[center.lng,center.lat],zoom:map.getZoom(),bearing:map.getBearing(),pitch:map.getPitch()};
+ rememberCamera();
  const idx=manualKeys.findIndex(v=>Math.abs(v.sec-sec)<.06);
  if(idx>=0)manualKeys.splice(idx,1);
  manualKeys.push(k);manualKeys.sort((a,b)=>a.sec-b.sec);
  studio('manualEnabled').checked=true;showKeys();persistKeys();
  status.textContent='Kamera karesi '+sec.toFixed(1)+' saniyeye kaydedildi.';
 };
-studio('deleteKeys').onclick=()=>{manualKeys.length=0;studio('manualEnabled').checked=false;showKeys();persistKeys();status.textContent='Manuel kamera kareleri temizlendi.';};
+studio('deleteKeys').onclick=()=>{rememberCamera();manualKeys.length=0;studio('manualEnabled').checked=false;showKeys();persistKeys();status.textContent='Manuel kamera kareleri temizlendi.';};
 function cameraAt(sec){
  if(!manualKeys.length)return null;
  if(sec<=manualKeys[0].sec)return manualKeys[0];
@@ -543,14 +544,16 @@ studio('projectFile').onchange=async()=>{
  try{applyLandProject(JSON.parse(await file.text()));status.textContent='Emlak proje bilgileri açıldı.';}catch(e){status.textContent='Proje açılamadı: '+e.message;}
  studio('projectFile').value='';
 };
-const undoStack=[];
+const undoStack=[];const cameraUndoStack=[];
+function rememberCamera(){cameraUndoStack.push(manualKeys.map(k=>({...k,center:k.center.slice()})));if(cameraUndoStack.length>50)cameraUndoStack.shift();}
+function restoreCameraUndo(){if(!cameraUndoStack.length)return false;manualKeys.splice(0,manualKeys.length,...cameraUndoStack.pop());studio('manualEnabled').checked=manualKeys.length>0;showKeys();persistKeys();status.textContent='Kamera kareleri geri alındı.';return true;}
 function rememberLand(){undoStack.push(landCoords.map(c=>c.slice()));if(undoStack.length>60)undoStack.shift();}
 function restoreLandUndo(){if(!undoStack.length){status.textContent='Geri alınacak arsa çizimi yok.';return;}landCoords=undoStack.pop();paintLand();status.textContent='Son arsa çizim işlemi geri alındı.';}
 document.addEventListener('keydown',event=>{
  if(!(event.ctrlKey||event.metaKey)||event.key.toLowerCase()!=='z'||event.shiftKey)return;
  const el=event.target;
  if(el?.matches?.('input,textarea,[contenteditable="true"]'))return;
- if(undoStack.length){event.preventDefault();restoreLandUndo();}
+ if(undoStack.length){event.preventDefault();restoreLandUndo();}else if(cameraUndoStack.length){event.preventDefault();restoreCameraUndo();}
 });
 studio('drawLand').onclick=()=>{landDrawing=true;studio('finishLand').disabled=false;status.textContent='Alan çizimi açık: haritada köşe noktalarına sırayla tıkla.';};
 studio('finishLand').onclick=()=>{if(landCoords.length<3){status.textContent='En az 3 köşe noktası seçmelisin.';return;}landDrawing=false;studio('finishLand').disabled=true;paintLand();status.textContent='Tanıtım alanı çizildi. Bu resmî parsel sınırı değildir.';};
