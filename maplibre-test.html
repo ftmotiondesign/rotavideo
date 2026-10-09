@@ -2,8 +2,8 @@
 <html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Rotavido • MapLibre Harita Testi</title>
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
-<style>*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:Arial,sans-serif;background:#081223;color:#fff}header{padding:14px 20px;background:#101f36;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1{font-size:18px;margin:0}small{color:#b1c3d7}button{background:#223954;color:white;border:1px solid #47617f;border-radius:10px;padding:10px 14px;cursor:pointer}button.active{background:#13a98c;color:#031f22}#map{height:calc(100dvh - 115px);min-height:330px;width:100%}#status{padding:10px 20px;color:#b9dce9;background:#101f36;font-size:13px}#controls{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.maplibregl-control-container{font-size:11px}@media(max-width:650px){#map{height:calc(100dvh - 156px)}} </style></head><body>
-<header><div><h1>ROTAVIDO • Yeni Harita Testi</h1><small>MapLibre GL JS · Uydu / Normal · İki konum seçimi</small></div><div id="controls"><button id="sat" class="active">🛰 Uydu</button><button id="normal">🗺 Normal</button><button id="reset">↺ Temizle</button></div></header>
+<style>*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:Arial,sans-serif;background:#081223;color:#fff}header{padding:14px 20px;background:#101f36;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1{font-size:18px;margin:0}small{color:#b1c3d7}button{background:#223954;color:white;border:1px solid #47617f;border-radius:10px;padding:10px 14px;cursor:pointer}button.active{background:#13a98c;color:#031f22}button:disabled{opacity:.45;cursor:not-allowed}#map{height:calc(100dvh - 115px);min-height:330px;width:100%}#status{padding:10px 20px;color:#b9dce9;background:#101f36;font-size:13px}#controls{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.maplibregl-control-container{font-size:11px}@media(max-width:650px){#map{height:calc(100dvh - 156px)}} </style></head><body>
+<header><div><h1>ROTAVIDO • Yeni Harita Testi</h1><small>MapLibre GL JS · Uydu / Normal · İki konum seçimi</small></div><div id="controls"><button id="sat" class="active">🛰 Uydu</button><button id="normal">🗺 Normal</button><button id="routeBtn" disabled>↗ Sokak Rotası</button><button id="playBtn" disabled>▶ Animasyon</button><button id="reset">↺ Temizle</button></div></header>
 <div id="map"></div><div id="status">Harita yükleniyor… Haritaya tıklayarak başlangıç ve hedef seçin.</div>
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>
@@ -15,7 +15,58 @@ map.on('load',()=>status.textContent='Uydu hazır. Başlangıç ve hedef noktas�
 map.on('error',e=>{console.error('Rotavido MapLibre:',e.error);status.textContent='Harita hatası: '+(e.error?.message||'Ağ bağlantısını kontrol edin.');});
 function switchMode(next){mode=next;document.querySelector('#sat').classList.toggle('active',mode==='sat');document.querySelector('#normal').classList.toggle('active',mode==='normal');if(map.getLayer('base'))map.removeLayer('base');if(map.getSource('base'))map.removeSource('base');map.addSource('base',mode==='sat'?satellite:normal);map.addLayer({id:'base',type:'raster',source:'base'},map.getLayer('route')?'route':undefined);status.textContent=(mode==='sat'?'Uydu':'Normal')+' haritası yükleniyor…';}
 document.querySelector('#sat').onclick=()=>switchMode('sat');document.querySelector('#normal').onclick=()=>switchMode('normal');
-function clear(){markers.forEach(m=>m.remove());markers=[];points=[];if(map.getLayer('route'))map.removeLayer('route');if(map.getSource('route'))map.removeSource('route');status.textContent='Temizlendi. Haritada başlangıç noktasını seçin.';}
+
+let path=[],animFrame=null,animatedMarker=null;
+const routeBtn=document.querySelector('#routeBtn'),playBtn=document.querySelector('#playBtn');
+function stopAnimation(){if(animFrame)cancelAnimationFrame(animFrame);animFrame=null;if(animatedMarker){animatedMarker.remove();animatedMarker=null;}}
+function cleanRoute(){stopAnimation();path=[];routeBtn.disabled=true;playBtn.disabled=true;for(const id of ['animated','route'])if(map.getLayer(id))map.removeLayer(id);for(const id of ['animated','route'])if(map.getSource(id))map.removeSource(id);}
+function clear(){cleanRoute();markers.forEach(m=>m.remove());markers=[];points=[];status.textContent='Temizlendi. Haritada başlangıç noktasını seçin.';}
 document.querySelector('#reset').onclick=clear;
-map.on('click',e=>{if(points.length===2)clear();const p=[e.lngLat.lng,e.lngLat.lat];points.push(p);const el=document.createElement('div');el.style.cssText='width:22px;height:22px;border:3px solid white;border-radius:50%;background:'+(points.length===1?'#25d6aa':'#f56868')+';box-shadow:0 2px 8px #0008';markers.push(new maplibregl.Marker({element:el}).setLngLat(p).addTo(map));if(points.length===2){const geo={type:'Feature',geometry:{type:'LineString',coordinates:points},properties:{}};map.addSource('route',{type:'geojson',data:geo});map.addLayer({id:'route',type:'line',source:'route',paint:{'line-color':'#ffbd56','line-width':5}});status.textContent='İki nokta seçildi. Sarı çizgi yalnızca bağlantı testi; gerçek sokak rotası sonraki aşamada.';}else status.textContent='Başlangıç seçildi. Şimdi hedefe tıklayın.';});
+map.on('click',e=>{
+ if(points.length===2)clear();
+ const p=[e.lngLat.lng,e.lngLat.lat];points.push(p);
+ const el=document.createElement('div');el.style.cssText='width:22px;height:22px;border:3px solid white;border-radius:50%;background:'+(points.length===1?'#25d6aa':'#f56868')+';box-shadow:0 2px 8px #0008';
+ markers.push(new maplibregl.Marker({element:el}).setLngLat(p).addTo(map));
+ if(points.length===2){routeBtn.disabled=false;status.textContent='İki nokta seçildi. Sokak Rotası butonuna basın.';}
+ else status.textContent='Başlangıç seçildi. Şimdi hedefe tıklayın.';
+});
+routeBtn.onclick=async()=>{
+ if(points.length!==2)return;
+ cleanRoute();routeBtn.disabled=true;status.textContent='Gerçek araç rotası hesaplanıyor…';
+ try{
+  const a=points[0],b=points[1];
+  const url='https://routing.openstreetmap.de/routed-car/route/v1/driving/'+a.join(',')+';'+b.join(',')+'?overview=full&geometries=geojson';
+  const response=await fetch(url);if(!response.ok)throw Error('HTTP '+response.status);
+  const data=await response.json();if(data.code!=='Ok'||!data.routes?.length)throw Error('Rota bulunamadı');
+  path=data.routes[0].geometry.coordinates;
+  map.addSource('route',{type:'geojson',data:{type:'Feature',properties:{},geometry:{type:'LineString',coordinates:path}}});
+  map.addLayer({id:'route',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#25e0bc','line-width':6}});
+  map.addSource('animated',{type:'geojson',data:{type:'Feature',properties:{},geometry:{type:'LineString',coordinates:[path[0],path[0]]}}});
+  map.addLayer({id:'animated',type:'line',source:'animated',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ffc354','line-width':8}});
+  const bds=path.reduce((bounds,p)=>bounds.extend(p),new maplibregl.LngLatBounds(path[0],path[0]));map.fitBounds(bds,{padding:80,duration:850});
+  playBtn.disabled=false;routeBtn.disabled=false;
+  status.textContent='Sokak rotası hazır: '+(data.routes[0].distance/1000).toFixed(2)+' km. Animasyon butonuna basın.';
+ }catch(err){routeBtn.disabled=false;status.textContent='Rota hatası: '+err.message+'. Noktaları değiştirebilirsiniz.';}
+};
+playBtn.onclick=()=>{
+ if(path.length<2)return;
+ stopAnimation();const duration=20000,arr=[0];let total=0;
+ const rad=Math.PI/180;
+ const dist=(a,b)=>{const lat1=a[1]*rad,lat2=b[1]*rad,dlat=(b[1]-a[1])*rad,dlng=(b[0]-a[0])*rad;const q=Math.sin(dlat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dlng/2)**2;return 6371000*2*Math.atan2(Math.sqrt(q),Math.sqrt(1-q));};
+ for(let i=1;i<path.length;i++){total+=dist(path[i-1],path[i]);arr.push(total);}
+ const el=document.createElement('div');el.style.cssText='width:17px;height:17px;border-radius:50%;background:#ffc354;border:3px solid white;box-shadow:0 0 14px #ffb300';
+ animatedMarker=new maplibregl.Marker({element:el}).setLngLat(path[0]).addTo(map);
+ const start=performance.now();playBtn.disabled=true;
+ function tick(now){
+  const t=Math.min(1,(now-start)/duration),meters=t*total;
+  let lo=1,hi=arr.length-1;while(lo<hi){const m=Math.floor((lo+hi)/2);if(arr[m]<meters)lo=m+1;else hi=m;}const i=lo;
+  const part=(meters-arr[i-1])/Math.max(0.001,arr[i]-arr[i-1]);
+  const a=path[i-1],b=path[i],here=[a[0]+(b[0]-a[0])*part,a[1]+(b[1]-a[1])*part];
+  map.getSource('animated').setData({type:'Feature',properties:{},geometry:{type:'LineString',coordinates:[...path.slice(0,i),here]}});
+  animatedMarker.setLngLat(here);
+  if(now-start<duration){map.easeTo({center:here,duration:0});animFrame=requestAnimationFrame(tick);}
+  else{animFrame=null;playBtn.disabled=false;status.textContent='Animasyon tamamlandı. Tekrar oynatabilirsiniz.';}
+ }
+ status.textContent='Kamera rotayı takip ediyor…';animFrame=requestAnimationFrame(tick);
+};
 </script></body></html>
