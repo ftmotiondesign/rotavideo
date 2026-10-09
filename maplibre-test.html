@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rotavido • MapLibre Harita Testi</title>
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<style>*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:Arial,sans-serif;background:#081223;color:#fff}header{padding:14px 20px;background:#101f36;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1{font-size:18px;margin:0}small{color:#b1c3d7}button{background:#223954;color:white;border:1px solid #47617f;border-radius:10px;padding:10px 14px;cursor:pointer}button.active{background:#13a98c;color:#031f22}#map{height:calc(100dvh - 115px);min-height:330px;width:100%}#status{padding:10px 20px;color:#b9dce9;background:#101f36;font-size:13px}#controls{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.maplibregl-control-container{font-size:11px}@media(max-width:650px){#map{height:calc(100dvh - 156px)}} </style></head><body>
+<header><div><h1>ROTAVIDO • Yeni Harita Testi</h1><small>MapLibre GL JS · Uydu / Normal · İki konum seçimi</small></div><div id="controls"><button id="sat" class="active">🛰 Uydu</button><button id="normal">🗺 Normal</button><button id="reset">↺ Temizle</button></div></header>
+<div id="map"></div><div id="status">Harita yükleniyor… Haritaya tıklayarak başlangıç ve hedef seçin.</div>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const satellite={type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,attribution:'Imagery © Esri and its licensors',maxzoom:19};
+const normal={type:'raster',tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,attribution:'© OpenStreetMap contributors',maxzoom:19};
+const status=document.querySelector('#status');let mode='sat',points=[],markers=[];const map=new maplibregl.Map({container:'map',style:{version:8,sources:{base:satellite},layers:[{id:'base',type:'raster',source:'base'}]},center:[26.4064,40.1467],zoom:14,attributionControl:true});
+map.addControl(new maplibregl.NavigationControl(),'bottom-right');
+map.on('load',()=>status.textContent='Uydu hazır. Başlangıç ve hedef noktası seçmek için haritaya tıklayın.');
+map.on('error',e=>{console.error('Rotavido MapLibre:',e.error);status.textContent='Harita hatası: '+(e.error?.message||'Ağ bağlantısını kontrol edin.');});
+function switchMode(next){mode=next;document.querySelector('#sat').classList.toggle('active',mode==='sat');document.querySelector('#normal').classList.toggle('active',mode==='normal');if(map.getLayer('base'))map.removeLayer('base');if(map.getSource('base'))map.removeSource('base');map.addSource('base',mode==='sat'?satellite:normal);map.addLayer({id:'base',type:'raster',source:'base'},map.getLayer('route')?'route':undefined);status.textContent=(mode==='sat'?'Uydu':'Normal')+' haritası yükleniyor…';}
+document.querySelector('#sat').onclick=()=>switchMode('sat');document.querySelector('#normal').onclick=()=>switchMode('normal');
+function clear(){markers.forEach(m=>m.remove());markers=[];points=[];if(map.getLayer('route'))map.removeLayer('route');if(map.getSource('route'))map.removeSource('route');status.textContent='Temizlendi. Haritada başlangıç noktasını seçin.';}
+document.querySelector('#reset').onclick=clear;
+map.on('click',e=>{if(points.length===2)clear();const p=[e.lngLat.lng,e.lngLat.lat];points.push(p);const el=document.createElement('div');el.style.cssText='width:22px;height:22px;border:3px solid white;border-radius:50%;background:'+(points.length===1?'#25d6aa':'#f56868')+';box-shadow:0 2px 8px #0008';markers.push(new maplibregl.Marker({element:el}).setLngLat(p).addTo(map));if(points.length===2){const geo={type:'Feature',geometry:{type:'LineString',coordinates:points},properties:{}};map.addSource('route',{type:'geojson',data:geo});map.addLayer({id:'route',type:'line',source:'route',paint:{'line-color':'#ffbd56','line-width':5}});status.textContent='İki nokta seçildi. Sarı çizgi yalnızca bağlantı testi; gerçek sokak rotası sonraki aşamada.';}else status.textContent='Başlangıç seçildi. Şimdi hedefe tıklayın.';});
+</script></body></html>
