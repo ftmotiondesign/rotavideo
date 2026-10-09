@@ -16,7 +16,7 @@ map.on('error',e=>{console.error('Rotavido MapLibre:',e.error);status.textConten
 function switchMode(next){mode=next;document.querySelector('#sat').classList.toggle('active',mode==='sat');document.querySelector('#normal').classList.toggle('active',mode==='normal');if(map.getLayer('base'))map.removeLayer('base');if(map.getSource('base'))map.removeSource('base');map.addSource('base',mode==='sat'?satellite:normal);map.addLayer({id:'base',type:'raster',source:'base'},map.getLayer('route')?'route':undefined);status.textContent=(mode==='sat'?'Uydu':'Normal')+' haritası yükleniyor…';}
 document.querySelector('#sat').onclick=()=>switchMode('sat');document.querySelector('#normal').onclick=()=>switchMode('normal');
 
-const studio=id=>document.getElementById(id);function styleRoute(){if(!map.getLayer('route'))return;const mode=studio('lineStyle').value, color=studio('lineColor').value;map.setPaintProperty('route','line-color',color);map.setPaintProperty('route','line-width',mode==='neon'?10:mode==='solid'?6:7);map.setPaintProperty('route','line-opacity',mode==='glow'?.65:1);map.setLayoutProperty('route','line-dasharray',mode==='dash'?[2,2]:[1,0]);if(map.getLayer('animated')){map.setPaintProperty('animated','line-color',mode==='neon'?'#fff3ae':mode==='solid'?color:'#ffc354');map.setPaintProperty('animated','line-width',mode==='neon'?5:mode==='glow'?9:6);map.setLayoutProperty('animated','line-dasharray',mode==='dash'?[2,1]:[1,0]);}}studio('lineStyle').addEventListener('change',styleRoute);studio('lineColor').addEventListener('input',styleRoute);
+const studio=id=>document.getElementById(id);function styleRoute(){if(!map.getLayer('route'))return;const mode=studio('lineStyle').value, color=studio('lineColor').value;map.setPaintProperty('route','line-color',color);map.setPaintProperty('route','line-width',mode==='neon'?10:mode==='solid'?6:7);map.setPaintProperty('route','line-opacity',mode==='glow'?.65:1);map.setLayoutProperty('route','line-dasharray',mode==='dash'?[2,2]:[1,0]);if(map.getLayer('animated')){map.setPaintProperty('animated','line-color',mode==='neon'?'#fff3ae':mode==='solid'?color:'#ffc354');map.setPaintProperty('animated','line-width',mode==='neon'?5:mode==='glow'?9:6);map.setLayoutProperty('animated','line-dasharray',mode==='dash'?[2,1]:[1,0]);}}studio('lineStyle').addEventListener('change',styleRoute);studio('lineColor').addEventListener('input',styleRoute);studio('glowLine').addEventListener('change',()=>{if(map.getLayer('routeHalo'))map.setPaintProperty('routeHalo','line-opacity',studio('glowLine').checked ? 0.22 : 0);});
 let path=[],animFrame=null,animatedMarker=null;
 const routeBtn=document.querySelector('#routeBtn'),playBtn=document.querySelector('#playBtn');
 function stopAnimation(){if(animFrame)cancelAnimationFrame(animFrame);animFrame=null;if(animatedMarker){animatedMarker.remove();animatedMarker=null;}}
@@ -73,7 +73,7 @@ playBtn.onclick=()=>{
  if(follow)map.easeTo({center:first,bearing:baseBearing,pitch:model==='follow'?0:35,zoom:targetZoom-1.1*intensity,duration:prep,easing:smooth});
  const started=performance.now()+prep;
  let lastUpdate=0,lastTime=started,camCenter=first,camBearing=baseBearing,camZoom=targetZoom-1.1*intensity;
- if(map.getLayer('routeHalo'))map.setPaintProperty('routeHalo','line-opacity',studio('glowLine').checked?.22:0);
+ if(map.getLayer('routeHalo'))map.setPaintProperty('routeHalo','line-opacity',(studio('glowLine').checked ? 0.22 : 0));
  playBtn.disabled=true;
  function tick(now){
   if(now<started){animFrame=requestAnimationFrame(tick);return;}
