@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rotavido • Video Stüdyosu V4</title>
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<style>*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:Arial,sans-serif;background:#081223;color:#fff}header{padding:14px 20px;background:#101f36;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1{font-size:18px;margin:0}small{color:#b1c3d7}button{background:#223954;color:white;border:1px solid #47617f;border-radius:10px;padding:10px 14px;cursor:pointer}button.active{background:#13a98c;color:#031f22}button:disabled{opacity:.45;cursor:not-allowed}#map{height:calc(100dvh - 115px);min-height:330px;width:100%}#status{padding:10px 20px;color:#b9dce9;background:#101f36;font-size:13px}#controls{display:flex;gap:7px;align-items:center;flex-wrap:wrap}#routeActions{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);z-index:15;display:flex;gap:10px;background:#0a1a30ee;border:1px solid #5c7d9c;padding:12px;border-radius:16px;box-shadow:0 8px 30px #0009;max-width:95vw}#routeActions button{font-size:15px;font-weight:700;white-space:nowrap}#routeBtn:not(:disabled){background:#19b99b;color:#08202a}.maplibregl-control-container{font-size:11px}@media(max-width:650px){#map{height:calc(100dvh - 156px)}} #studio{position:fixed;top:90px;right:14px;z-index:12;width:260px;max-height:calc(100vh - 190px);overflow:auto;padding:13px;border:1px solid #44617d;border-radius:15px;background:#102037ed;box-shadow:0 8px 25px #0007}#studio h2{font-size:15px;margin:0 0 10px}#studio label{display:block;font-size:12px;margin:9px 0 4px;color:#c8d9e8}#studio select,#studio input{width:100%;background:#1d3552;border:1px solid #466080;border-radius:8px;color:white;padding:8px}#studio .checks{display:flex;align-items:center;gap:7px;font-size:12px;margin-top:8px}#studio .checks input{width:auto}#finalCard{display:none;position:fixed;bottom:122px;left:50%;transform:translateX(-50%);z-index:13;background:#112039ef;color:white;border:1px solid #57cfb6;border-radius:16px;padding:15px 28px;text-align:center;max-width:90vw}#finalCard strong{display:block;font-size:20px;margin-bottom:6px}@media(max-width:760px){#studio{position:relative;top:auto;right:auto;width:100%;max-height:none;border-radius:0}#map{height:65vh}#routeActions{bottom:44px}#finalCard{bottom:112px}} </style></head><body>
+<header><div><h1>ROTAVIDO • Video Stüdyosu V4</h1><small>MapLibre GL JS · Uydu / Normal · İki konum seçimi</small></div><div id="controls"><button id="sat" class="active">🛰 Uydu</button><button id="normal">🗺 Normal</button><button id="reset">↺ Temizle</button></div></header>
+<div id="studio"><h2>🎬 Video Stüdyosu</h2><label>Kamera modeli</label><select id="cameraStyle"><option value="follow">Yolu takip et (üstten)</option><option value="cinema" selected>Sinematik eğimli kamera</option><option value="orbit">Dönüşlerde farklı açıdan görün</option><option value="overview">Yolculuğa genel bakış</option><option value="drone">Drone yaklaşımı (genişten yakına)</option><option value="focus">Hedefe sinematik yaklaşma</option></select><label>Yakınlaşma şiddeti</label><select id="zoomIntensity"><option value="0">Kapalı</option><option value="0.6">Hafif</option><option value="1" selected>Normal</option><option value="1.5">Güçlü</option></select><label>Çizgi modeli</label><select id="lineStyle"><option value="glow">Parlak çift renk</option><option value="solid">Düz çizgi</option><option value="dash">Kesik çizgi</option><option value="neon">Neon çizgi</option></select><label>Rota rengi</label><input id="lineColor" type="color" value="#27dfbf"><label>Video süresi</label><select id="videoDuration"><option value="15">15 saniye</option><option value="20" selected>20 saniye</option><option value="30">30 saniye</option><option value="45">45 saniye</option></select><label>Video oranı (önizleme tercihi)</label><select id="videoFormat"><option value="9:16">9:16 Reels</option><option value="16:9" selected>16:9 Yatay</option><option value="1:1">1:1 Kare</option></select><label class="checks"><input id="followCamera" type="checkbox" checked> Kamera rotayı takip etsin</label><label class="checks"><input id="glowLine" type="checkbox" checked> Rota parlama efekti</label><label class="checks"><input id="showFinal" type="checkbox" checked> Varışta final kartı göster</label><label>İşletme adı</label><input id="businessName" placeholder="İşletmenizin adı"></div><div id="map"></div><div id="finalCard"><strong id="finalName">Hedefe ulaştınız!</strong><span>📍 Konumunuza hoş geldiniz</span></div><div id="routeActions"><button id="routeBtn" disabled>↗ Sokak Rotası Oluştur</button><button id="playBtn" disabled>▶ Animasyonu Oynat</button></div><div id="status">Harita yükleniyor… Haritaya tıklayarak başlangıç ve hedef seçin.</div>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const satellite={type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,attribution:'Imagery © Esri and its licensors',maxzoom:19};
+const normal={type:'raster',tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,attribution:'© OpenStreetMap contributors',maxzoom:19};
+const status=document.querySelector('#status');let mode='sat',points=[],markers=[];const map=new maplibregl.Map({container:'map',style:{version:8,sources:{base:satellite},layers:[{id:'base',type:'raster',source:'base'}]},center:[26.4064,40.1467],zoom:14,attributionControl:true});
+map.addControl(new maplibregl.NavigationControl(),'bottom-right');
+map.on('load',()=>status.textContent='Uydu hazır. Başlangıç ve hedef noktası seçmek için haritaya tıklayın.');
+map.on('error',e=>{console.error('Rotavido MapLibre:',e.error);status.textContent='Harita hatası: '+(e.error?.message||'Ağ bağlantısını kontrol edin.');});
+function switchMode(next){mode=next;document.querySelector('#sat').classList.toggle('active',mode==='sat');document.querySelector('#normal').classList.toggle('active',mode==='normal');if(map.getLayer('base'))map.removeLayer('base');if(map.getSource('base'))map.removeSource('base');map.addSource('base',mode==='sat'?satellite:normal);map.addLayer({id:'base',type:'raster',source:'base'},map.getLayer('route')?'route':undefined);status.textContent=(mode==='sat'?'Uydu':'Normal')+' haritası yükleniyor…';}
+document.querySelector('#sat').onclick=()=>switchMode('sat');document.querySelector('#normal').onclick=()=>switchMode('normal');
+
+const studio=id=>document.getElementById(id);function styleRoute(){if(!map.getLayer('route'))return;const mode=studio('lineStyle').value, color=studio('lineColor').value;map.setPaintProperty('route','line-color',color);map.setPaintProperty('route','line-width',mode==='neon'?10:mode==='solid'?6:7);map.setPaintProperty('route','line-opacity',mode==='glow'?.65:1);map.setLayoutProperty('route','line-dasharray',mode==='dash'?[2,2]:[1,0]);if(map.getLayer('animated')){map.setPaintProperty('animated','line-color',mode==='neon'?'#fff3ae':mode==='solid'?color:'#ffc354');map.setPaintProperty('animated','line-width',mode==='neon'?5:mode==='glow'?9:6);map.setLayoutProperty('animated','line-dasharray',mode==='dash'?[2,1]:[1,0]);}}studio('lineStyle').addEventListener('change',styleRoute);studio('lineColor').addEventListener('input',styleRoute);
+let path=[],animFrame=null,animatedMarker=null;
+const routeBtn=document.querySelector('#routeBtn'),playBtn=document.querySelector('#playBtn');
+function stopAnimation(){if(animFrame)cancelAnimationFrame(animFrame);animFrame=null;if(animatedMarker){animatedMarker.remove();animatedMarker=null;}}
+function cleanRoute(){studio('finalCard').style.display='none';stopAnimation();path=[];routeBtn.disabled=true;playBtn.disabled=true;for(const id of ['animated','route','routeHalo'])if(map.getLayer(id))map.removeLayer(id);for(const id of ['animated','route'])if(map.getSource(id))map.removeSource(id);}
+function clear(){cleanRoute();markers.forEach(m=>m.remove());markers=[];points=[];status.textContent='Temizlendi. Haritada başlangıç noktasını seçin.';}
+document.querySelector('#reset').onclick=clear;
+map.on('click',e=>{
+ if(points.length===2)clear();
+ const p=[e.lngLat.lng,e.lngLat.lat];points.push(p);
+ const el=document.createElement('div');el.style.cssText='width:22px;height:22px;border:3px solid white;border-radius:50%;background:'+(points.length===1?'#25d6aa':'#f56868')+';box-shadow:0 2px 8px #0008';
+ markers.push(new maplibregl.Marker({element:el}).setLngLat(p).addTo(map));
+ if(points.length===2){routeBtn.disabled=false;status.textContent='İki nokta seçildi. Sokak Rotası butonuna basın.';}
+ else status.textContent='Başlangıç seçildi. Şimdi hedefe tıklayın.';
+});
+routeBtn.onclick=async()=>{
+ if(points.length!==2)return;
+ cleanRoute();routeBtn.disabled=true;status.textContent='Gerçek araç rotası hesaplanıyor…';
+ try{
+  const a=points[0],b=points[1];
+  const url='https://routing.openstreetmap.de/routed-car/route/v1/driving/'+a.join(',')+';'+b.join(',')+'?overview=full&geometries=geojson';
+  const response=await fetch(url);if(!response.ok)throw Error('HTTP '+response.status);
+  const data=await response.json();if(data.code!=='Ok'||!data.routes?.length)throw Error('Rota bulunamadı');
+  path=data.routes[0].geometry.coordinates;
+  map.addSource('route',{type:'geojson',data:{type:'Feature',properties:{},geometry:{type:'LineString',coordinates:path}}});
+  map.addLayer({id:'route',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#25e0bc','line-width':6}});
+  map.addSource('animated',{type:'geojson',data:{type:'Feature',properties:{},geometry:{type:'LineString',coordinates:[path[0],path[0]]}}});
+  map.addLayer({id:'animated',type:'line',source:'animated',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ffc354','line-width':8}});
+  if(!map.getLayer('routeHalo'))map.addLayer({id:'routeHalo',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#68ffff','line-width':17,'line-opacity':.18,'line-blur':6}},'route');
+  const bds=path.reduce((bounds,p)=>bounds.extend(p),new maplibregl.LngLatBounds(path[0],path[0]));map.fitBounds(bds,{padding:80,duration:850});
+  playBtn.disabled=false;routeBtn.disabled=false;styleRoute();
+  status.textContent='Sokak rotası hazır: '+(data.routes[0].distance/1000).toFixed(2)+' km. Animasyon butonuna basın.';
+ }catch(err){routeBtn.disabled=false;status.textContent='Rota hatası: '+err.message+'. Noktaları değiştirebilirsiniz.';}
+};
+playBtn.onclick=()=>{
+ if(path.length<2)return;
+ stopAnimation();
+ studio('finalCard').style.display='none';
+ const duration=Number(studio('videoDuration').value)*1000, intensity=Number(studio('zoomIntensity').value), model=studio('cameraStyle').value;
+ const rad=Math.PI/180, arr=[0], smooth=t=>t*t*(3-2*t),clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+ const distance=(a,b)=>{const la=a[1]*rad,lb=b[1]*rad,dlat=(b[1]-a[1])*rad,dlng=(b[0]-a[0])*rad;const h=Math.sin(dlat/2)**2+Math.cos(la)*Math.cos(lb)*Math.sin(dlng/2)**2;return 6371000*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));};
+ for(let k=1;k<path.length;k++)arr.push(arr[k-1]+distance(path[k-1],path[k]));
+ const total=arr[arr.length-1];if(total<=0)return;
+ const pointAt=m=>{m=clamp(m,0,total);let low=1,high=arr.length-1;while(low<high){const mid=(low+high)>>1;if(arr[mid]<m)low=mid+1;else high=mid;}const k=low,f=clamp((m-arr[k-1])/Math.max(.00001,arr[k]-arr[k-1]),0,1);return [path[k-1][0]+(path[k][0]-path[k-1][0])*f,path[k-1][1]+(path[k][1]-path[k-1][1])*f];};
+ const first=pointAt(0),ahead=pointAt(Math.min(total,Math.max(45,total*.08)));
+ const heading=(Math.atan2((ahead[0]-first[0])*Math.cos(first[1]*rad),ahead[1]-first[1])*180/Math.PI+360)%360;
+ const follow=studio('followCamera').checked;
+ const baseBearing=model==='follow'||model==='overview'?0:heading;
+ const baseZoom=clamp(map.getZoom(),13.5,16);
+ const targetZoom=model==='overview'?Math.min(14.7,baseZoom):baseZoom;
+ const pitch=model==='follow'?0:model==='overview'?25:50;
+ const markerEl=document.createElement('div');markerEl.style.cssText='width:18px;height:18px;border-radius:50%;background:#ffc354;border:3px solid white;box-shadow:0 0 14px #ffb300';
+ animatedMarker=new maplibregl.Marker({element:markerEl}).setLngLat(first).addTo(map);
+ const prep=1000;
+ if(follow)map.easeTo({center:first,bearing:baseBearing,pitch:model==='follow'?0:35,zoom:targetZoom-1.1*intensity,duration:prep,easing:smooth});
+ const started=performance.now()+prep;
+ let lastUpdate=0,lastTime=started,camCenter=first,camBearing=baseBearing,camZoom=targetZoom-1.1*intensity;
+ if(map.getLayer('routeHalo'))map.setPaintProperty('routeHalo','line-opacity',studio('glowLine').checked?.22:0);
+ playBtn.disabled=true;
+ function tick(now){
+  if(now<started){animFrame=requestAnimationFrame(tick);return;}
+  if(now-lastUpdate<50){animFrame=requestAnimationFrame(tick);return;}
+  lastUpdate=now;
+  const t=clamp((now-started)/duration,0,1),m=t*total,here=pointAt(m);
+  let lo=1,hi=arr.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(arr[mid]<m)lo=mid+1;else hi=mid;}
+  const lineCoordinates=path.slice(0,lo);lineCoordinates.push(here);
+  const src=map.getSource('animated');
+  if(src)src.setData({type:'Feature',properties:{},geometry:{type:'LineString',coordinates:lineCoordinates}});
+  if(animatedMarker)animatedMarker.setLngLat(here);
+  if(follow){
+   const dt=clamp((now-lastTime)/1000,.01,.12);lastTime=now;
+   const posEase=1-Math.exp(-dt*4.5),rotEase=1-Math.exp(-dt*1.5);
+   camCenter=[camCenter[0]+(here[0]-camCenter[0])*posEase,camCenter[1]+(here[1]-camCenter[1])*posEase];
+   // Camera moves along a planned cinematic arc, independent of noisy road vertices.
+   const orbit=model==='orbit'?32*Math.sin(Math.PI*(t-.5)):
+               model==='cinema'?7*Math.sin(2*Math.PI*t):
+               model==='drone'?15*Math.sin(Math.PI*t):0;
+   const desiredBearing=baseBearing+orbit;
+   camBearing+=clamp(desiredBearing-camBearing,-40*dt,40*dt)*rotEase*5;
+   const intro=smooth(clamp(t/.18,0,1)),outro=smooth(clamp((t-.72)/.28,0,1));
+   const introGain=1.1*intensity*intro;
+   const endingGain=(model==='focus'?1.8: model==='drone'?1.45:1.05)*intensity*outro;
+   const desiredZoom=targetZoom-1.1*intensity+introGain+endingGain;
+   camZoom+=clamp(desiredZoom-camZoom,-.85*dt,.85*dt);
+   const tilt=(model==='drone'?35+13*intro:model==='focus'?44+8*outro:pitch);
+   map.jumpTo({center:camCenter,bearing:camBearing,pitch:tilt,zoom:camZoom});
+  }
+  if(t<1){animFrame=requestAnimationFrame(tick);}
+  else{animFrame=null;playBtn.disabled=false;
+    if(studio('showFinal').checked){studio('finalName').textContent=studio('businessName').value.trim()||'Hedefe ulaştınız!';studio('finalCard').style.display='block';}
+    status.textContent='Sinematik önizleme tamamlandı. MP4 dışa aktarma henüz mevcut değil.';
+  }
+ }
+ status.textContent='Sinematik kamera: açılış, rota takibi ve hedef yakınlaşması…';
+ animFrame=requestAnimationFrame(tick);
+};
+</script></body></html>
