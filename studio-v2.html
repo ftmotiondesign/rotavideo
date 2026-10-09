@@ -58,6 +58,10 @@ playBtn.onclick=()=>{
  const el=document.createElement('div');el.style.cssText='width:17px;height:17px;border-radius:50%;background:#ffc354;border:3px solid white;box-shadow:0 0 14px #ffb300';
  animatedMarker=new maplibregl.Marker({element:el}).setLngLat(path[0]).addTo(map);
  const start=performance.now();playBtn.disabled=true;
+ let smoothBearing=map.getBearing(),smoothCenter=path[0],lastFrame=start;
+ const fixedZoom=Math.max(15,Math.min(17,map.getZoom()));
+ function pointAt(m){let lo=1,hi=arr.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(arr[mid]<m)lo=mid+1;else hi=mid;}const k=lo,ratio=Math.max(0,Math.min(1,(m-arr[k-1])/Math.max(.001,arr[k]-arr[k-1])));return [path[k-1][0]+(path[k][0]-path[k-1][0])*ratio,path[k-1][1]+(path[k][1]-path[k-1][1])*ratio];}
+ function shortestTurn(from,to){return ((to-from+540)%360)-180;}
  function tick(now){
   const t=Math.min(1,(now-start)/duration),meters=t*total;
   let lo=1,hi=arr.length-1;while(lo<hi){const m=Math.floor((lo+hi)/2);if(arr[m]<meters)lo=m+1;else hi=m;}const i=lo;
@@ -65,7 +69,28 @@ playBtn.onclick=()=>{
   const a=path[i-1],b=path[i],here=[a[0]+(b[0]-a[0])*part,a[1]+(b[1]-a[1])*part];
   map.getSource('animated').setData({type:'Feature',properties:{},geometry:{type:'LineString',coordinates:[...path.slice(0,i),here]}});
   animatedMarker.setLngLat(here);
-  if(now-start<duration){if(studio('followCamera').checked){const model=studio('cameraStyle').value;const heading=(Math.atan2((b[0]-a[0])*Math.cos(here[1]*Math.PI/180),b[1]-a[1])*180/Math.PI+360)%360;let bearing=0,pitch=0,zoom=map.getZoom();if(model==='cinema'){bearing=heading;pitch=55;zoom=Math.max(15,zoom);}else if(model==='orbit'){bearing=heading+55*Math.sin(t*Math.PI*4);pitch=55;zoom=Math.max(15,zoom);}else if(model==='overview'){pitch=35;zoom=Math.min(15,zoom);}map.jumpTo({center:here,bearing,pitch,zoom});}animFrame=requestAnimationFrame(tick);}
+  if(now-start<duration){
+   if(studio('followCamera').checked){
+     const model=studio('cameraStyle').value;
+     const dt=Math.min(.06,Math.max(.008,(now-lastFrame)/1000));lastFrame=now;
+     const lookAhead=pointAt(Math.min(total,meters+Math.max(18,total*.018)));
+     const lookBehind=pointAt(Math.max(0,meters-Math.max(10,total*.009)));
+     const lat=(lookAhead[1]+lookBehind[1])*.5*Math.PI/180;
+     const dx=(lookAhead[0]-lookBehind[0])*Math.cos(lat),dy=lookAhead[1]-lookBehind[1];
+     const heading=(Math.atan2(dx,dy)*180/Math.PI+360)%360;
+     let targetBearing=0,pitch=0,zoom=fixedZoom;
+     if(model==='cinema'){targetBearing=heading;pitch=53;}
+     else if(model==='orbit'){targetBearing=heading+35*Math.sin(t*Math.PI*2);pitch=52;}
+     else if(model==='overview'){pitch=30;zoom=Math.min(15,fixedZoom);}
+     // Smooth angular changes, including the 359° -> 0° transition.
+     const factor=1-Math.exp(-dt*2.5);
+     const turn=Math.max(-65*dt,Math.min(65*dt,shortestTurn(smoothBearing,targetBearing)*factor));
+     smoothBearing+=turn;
+     const follow=1-Math.exp(-dt*5);
+     smoothCenter=[smoothCenter[0]+(here[0]-smoothCenter[0])*follow,smoothCenter[1]+(here[1]-smoothCenter[1])*follow];
+     map.jumpTo({center:smoothCenter,bearing:smoothBearing,pitch,zoom});
+   }
+   animFrame=requestAnimationFrame(tick);}
   else{animFrame=null;playBtn.disabled=false;if(studio('showFinal').checked){studio('finalName').textContent=studio('businessName').value.trim()||'Hedefe ulaştınız!';studio('finalCard').style.display='block';}status.textContent='Animasyon tamamlandı. Tekrar oynatabilirsiniz.';}
  }
  status.textContent='Kamera rotayı takip ediyor…';animFrame=requestAnimationFrame(tick);
