@@ -218,7 +218,13 @@ let labelPick=false,labelPosition=null,labelEdit=-1;
 const labelStore='rotavido-location-labels-v18';
 function saveLocationLabels(){try{localStorage.setItem(labelStore,JSON.stringify(locationLabels.map(({lngLat,text,color,size,from,to,always})=>({lngLat,text,color,size,from,to,always}))));}catch(e){}}
 function updateLabelVisibility(sec){
- locationLabels.forEach(item=>{item.marker.getElement().style.display=(item.always||(sec>=item.from&&sec<=item.to))?'block':'none';});
+ locationLabels.forEach(item=>{
+  const el=item.marker.getElement(),show=item.always||(sec>=item.from&&sec<=item.to);
+  el.style.display=show?'block':'none';
+  const fade=item.always?1:Math.min(1,Math.max(0,(sec-item.from)/.55,(0)),Math.max(0,(item.to-sec)/.55));
+  el.style.opacity=show?String(fade):'0';
+  el.style.transition='opacity 120ms linear';
+ });
 }
 function buildLabel(item){
  const el=document.createElement('div');el.style.cssText='background:#10223adf;padding:6px 10px;border:1px solid #8aaac8;border-radius:9px;white-space:nowrap;font-weight:800;box-shadow:0 4px 16px #0008;pointer-events:auto;cursor:pointer;max-width:210px;overflow:hidden;text-overflow:ellipsis';
@@ -373,12 +379,24 @@ studio('saveImage').onclick=async()=>{
 const transport=studio('proTransport'),timeline=studio('proTimeline');
 let clockTime=0,clockPlaying=false,clockSpeed=1,clockDirection=1,clockLast=0,clockFrame=null;
 function durationSeconds(){return Number(studio('videoDuration').value);}
+let lastAutoCam=0;
 function routeSeek(sec){
  if(path.length<2)return;
  const r=Math.min(1,Math.max(0,sec/durationSeconds()));timelineRouteAt(sec);
- if(studio('manualEnabled').checked&&manualKeys.length){const k=cameraAt(sec);if(k)map.jumpTo(k);}
+ if(studio('manualEnabled').checked&&manualKeys.length){
+  const k=cameraAt(sec);if(k)map.jumpTo(k);
+ }else if(studio('followCamera').checked&&timelineMarker){
+  const pt=timelineMarker.getLngLat(),now=performance.now();
+  if(!clockPlaying||now-lastAutoCam>470){
+   lastAutoCam=now;
+   const zoom=14.7+1.5*(r*r*(3-2*r));
+   if(clockPlaying)map.easeTo({center:[pt.lng,pt.lat],zoom,pitch:35,duration:490,easing:t=>t,essential:true});
+   else map.jumpTo({center:[pt.lng,pt.lat],zoom,pitch:35});
+  }
+ }
 }
 function seekPro(sec){
+ if(sec<durationSeconds())studio('finalCard').style.display='none';
  clockTime=Math.max(0,Math.min(durationSeconds(),sec));
  timeline.value=clockTime;cameraTime.value=clockTime;updateTimeLabel();
  routeSeek(clockTime);updateLabelVisibility(clockTime);imageVisibility(clockTime);
@@ -389,11 +407,11 @@ function proTick(now){
  if(!clockPlaying)return;
  if(clockLast)seekPro(clockTime+(now-clockLast)/1000*clockSpeed*clockDirection);
  clockLast=now;
- if(clockTime<=0&&clockDirection<0||clockTime>=durationSeconds()&&clockDirection>0){clockPlaying=false;return;}
+ if(clockTime<=0&&clockDirection<0||clockTime>=durationSeconds()&&clockDirection>0){clockPlaying=false;if(clockDirection>0&&studio('showFinal').checked){studio('finalName').textContent=studio('businessName').value.trim()||'Hedefe ulaştınız!';studio('finalCard').style.display='block';}return;}
  clockFrame=requestAnimationFrame(proTick);
 }
-function startPro(direction){stopAnimation();if(clockFrame)cancelAnimationFrame(clockFrame);clockDirection=direction;if(clockTime>=durationSeconds()&&direction>0)seekPro(0);if(clockTime<=0&&direction<0)seekPro(durationSeconds());clockPlaying=true;clockLast=0;clockFrame=requestAnimationFrame(proTick);}
-function pausePro(){clockPlaying=false;if(clockFrame)cancelAnimationFrame(clockFrame);clockFrame=null;clockLast=0;}
+function startPro(direction){if(animFrame)cancelAnimationFrame(animFrame);animFrame=null;if(clockFrame)cancelAnimationFrame(clockFrame);clockDirection=direction;if(clockTime>=durationSeconds()&&direction>0)seekPro(0);if(clockTime<=0&&direction<0)seekPro(durationSeconds());clockPlaying=true;clockLast=0;clockFrame=requestAnimationFrame(proTick);}
+function pausePro(){map.stop();clockPlaying=false;if(clockFrame)cancelAnimationFrame(clockFrame);clockFrame=null;clockLast=0;}
 studio('toStart').onclick=()=>{pausePro();seekPro(0);};
 studio('toEnd').onclick=()=>{pausePro();seekPro(durationSeconds());};
 studio('skipBack').onclick=()=>{pausePro();seekPro(clockTime-5);};
@@ -405,67 +423,6 @@ studio('playSpeed').onchange=()=>clockSpeed=Number(studio('playSpeed').value);
 timeline.oninput=()=>{pausePro();seekPro(Number(timeline.value));};
 studio('videoDuration').addEventListener('change',()=>{timeline.max=durationSeconds();seekPro(Math.min(clockTime,durationSeconds()));});
 timeline.max=durationSeconds();seekPro(0);
-playBtn.onclick=()=>{
- if(path.length<2)return;
- stopAnimation();
- studio('finalCard').style.display='none';
- const duration=Number(studio('videoDuration').value)*1000;
- const arr=[0],rad=Math.PI/180;
- const dist=(a,b)=>{const la=a[1]*rad,lb=b[1]*rad,dlat=(b[1]-a[1])*rad,dlng=(b[0]-a[0])*rad;const x=Math.sin(dlat/2)**2+Math.cos(la)*Math.cos(lb)*Math.sin(dlng/2)**2;return 6371000*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));};
- for(let k=1;k<path.length;k++)arr.push(arr[k-1]+dist(path[k-1],path[k]));
- const total=arr[arr.length-1];if(total<=0)return;
- function pointAt(m){m=Math.max(0,Math.min(total,m));let lo=1,hi=arr.length-1;while(lo<hi){const mid=(lo+hi)>>1;if(arr[mid]<m)lo=mid+1;else hi=mid;}const k=lo,den=Math.max(.00001,arr[k]-arr[k-1]),f=(m-arr[k-1])/den;return [path[k-1][0]+(path[k][0]-path[k-1][0])*f,path[k-1][1]+(path[k][1]-path[k-1][1])*f];}
- const first=pointAt(0),forward=pointAt(Math.min(total,Math.max(45,total*.08)));
- const heading=(Math.atan2((forward[0]-first[0])*Math.cos(first[1]*rad),forward[1]-first[1])*180/Math.PI+360)%360;
- const follow=studio('followCamera').checked;
- const initialBounds=path.reduce((bounds,p)=>bounds.extend(p),new maplibregl.LngLatBounds(path[0],path[0]));
- const markerEl=document.createElement('div');
- markerEl.style.cssText='width:17px;height:17px;border-radius:50%;background:#ffc354;border:3px solid white;box-shadow:0 0 14px #ffb300';
- animatedMarker=new maplibregl.Marker({element:markerEl}).setLngLat(path[0]).addTo(map);
- // Camera stays north-up during motion to avoid imagery jitter.
- // The target follows a short way ahead of the animated marker.
- const baseZoom=15.2,finishZoom=16.5;
- if(follow && !studio('manualEnabled').checked)map.jumpTo({center:path[0],bearing:0,pitch:0,zoom:baseZoom});
- else if(studio('manualEnabled').checked && manualKeys.length)map.jumpTo(cameraAt(0));
- else map.fitBounds(initialBounds,{padding:100,duration:0,bearing:0,pitch:0});
- let started=performance.now()+450;let lastPaint=0,lastCameraMove=0;
- playBtn.disabled=true;
- function tick(now){
-  if(now<started){animFrame=requestAnimationFrame(tick);return;}
-  if(now-lastPaint<40){animFrame=requestAnimationFrame(tick);return;}
-  lastPaint=now;
-  const t=Math.min(1,(now-started)/duration);updateLabelVisibility(t*manualDuration());
-  if(studio('manualEnabled').checked){cameraTime.value=(t*manualDuration()).toFixed(1);updateTimeLabel();studio('routePercent').textContent='• Rota %'+Math.round(t*100);}
-  const meters=t*total, here=pointAt(meters);
-  let lo=1,hi=arr.length-1;
-  while(lo<hi){const mid=(lo+hi)>>1;if(arr[mid]<meters)lo=mid+1;else hi=mid;}
-  const segment=Math.max(1,lo),fragment=path.slice(0,segment);fragment.push(here);
-  const source=map.getSource('animated');
-  if(source)source.setData({type:'Feature',properties:{},geometry:{type:'LineString',coordinates:fragment}});
-  if(animatedMarker)animatedMarker.setLngLat(here);
-  if(studio('manualEnabled').checked && manualKeys.length){
-    const keyCamera=cameraAt(t*manualDuration());
-    if(keyCamera)map.jumpTo(keyCamera);
-  }else if(follow && (now-lastCameraMove>=520 || t===1)){
-    lastCameraMove=now;
-    const leadMeters=Math.min(total-meters, Math.min(total*.015,40));
-    const ahead=pointAt(meters+leadMeters);
-    // Continuous small transitions rather than large periodic repositioning.
-    // Follow is updated faster than the marker can leave the viewport.
-    const smooth=t*t*(3-2*t);
-    const zoom=baseZoom+1.3*smooth;
-    map.easeTo({center:ahead,zoom,duration:570,easing:x=>x,essential:true});
-  }
-  if(t<1)animFrame=requestAnimationFrame(tick);
-  else{
-   animFrame=null;playBtn.disabled=false;playbackState=null;refreshPlaybackButtons();
-   if(studio('showFinal').checked){studio('finalName').textContent=studio('businessName').value.trim()||'Hedefe ulaştınız!';studio('finalCard').style.display='block';}
-   status.textContent='Stabil test tamamlandı. Görüntüde titreme kaldı mı?';
-  }
- }
- playbackState={paused:false,pausedAt:0,frame:tick,shiftTime:ms=>{started+=ms;lastPaint+=ms;lastCameraMove+=ms;}};
- refreshPlaybackButtons();
- status.textContent=studio('manualEnabled').checked?'Manuel kamera kareleri oynatılıyor…':follow?'Kamera rota boyunca takip ediyor…':'Sabit haritada animasyon oynatılıyor…';
- animFrame=requestAnimationFrame(tick);
-};
+playBtn.onclick=()=>{if(path.length<2){status.textContent='Önce rota oluştur.';return;}studio('finalCard').style.display='none';startPro(1);};
+studio('previewKeys').onclick=()=>{if(!manualKeys.length){status.textContent='Önce kamera anahtar karesi ekle.';return;}studio('manualEnabled').checked=true;startPro(1);};
 </script></body></html>
