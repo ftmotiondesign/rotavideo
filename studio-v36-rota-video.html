@@ -647,7 +647,7 @@ function updateVehicle(){
  if(t==='none'||!timelineMarker){if(vehicleMarker){vehicleMarker.remove();vehicleMarker=null;}return;}
  if(!vehicleMarker){const el=document.createElement('div');el.style.cssText='font-size:28px;line-height:1;filter:drop-shadow(0 2px 4px #000);pointer-events:none';vehicleMarker=new maplibregl.Marker({element:el,anchor:'center'}).setLngLat(timelineMarker.getLngLat()).addTo(map);}
  vehicleMarker.getElement().textContent=markerIcons[t];vehicleMarker.setLngLat(timelineMarker.getLngLat());
- if(t==='arrow'&&progressedRoadCoords.length>=2){const a=progressedRoadCoords[progressedRoadCoords.length-2],b=progressedRoadCoords[progressedRoadCoords.length-1];const dy=b[1]-a[1],dx=(b[0]-a[0])*Math.cos(b[1]*Math.PI/180);const heading=Math.atan2(dx,dy)*180/Math.PI;vehicleMarker.getElement().firstChild?.remove?.();vehicleMarker.getElement().textContent='➤';vehicleMarker.getElement().style.rotate=(90-heading)+'deg';}else vehicleMarker.getElement().style.rotate='';
+ if(t==='arrow'&&progressedRoadCoords.length>=2){const a=progressedRoadCoords[progressedRoadCoords.length-2],b=progressedRoadCoords[progressedRoadCoords.length-1];const dy=b[1]-a[1],dx=(b[0]-a[0])*Math.cos(b[1]*Math.PI/180);const heading=Math.atan2(dx,dy)*180/Math.PI;vehicleMarker.getElement().firstChild?.remove?.();vehicleMarker.getElement().textContent='➤';vehicleMarker.getElement().style.rotate=(heading-90)+'deg';}else vehicleMarker.getElement().style.rotate='';
 }
 studio('vehicleType').addEventListener('change',updateVehicle);
 const voiceAudio=new Audio();voiceAudio.preload='metadata';let voiceUrl=null;
