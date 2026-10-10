@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rotavido • Video Stüdyosu V37 • Birleşik Düzenleme Paneli</title>
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<style>*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:Arial,sans-serif;background:#081223;color:#fff}header{padding:14px 20px;background:#101f36;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1{font-size:18px;margin:0}small{color:#b1c3d7}button{background:#223954;color:white;border:1px solid #47617f;border-radius:10px;padding:10px 14px;cursor:pointer}button.active{background:#13a98c;color:#031f22}button:disabled{opacity:.45;cursor:not-allowed}#map{height:calc(100dvh - 115px);min-height:330px;width:100%}#status{padding:10px 20px;color:#b9dce9;background:#101f36;font-size:13px}#controls{display:flex;gap:7px;align-items:center;flex-wrap:wrap}#routeActions{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);z-index:15;display:flex;gap:10px;background:#0a1a30ee;border:1px solid #5c7d9c;padding:12px;border-radius:16px;box-shadow:0 8px 30px #0009;max-width:95vw}#routeActions button{font-size:15px;font-weight:700;white-space:nowrap}#routeBtn:not(:disabled){background:#19b99b;color:#08202a}.maplibregl-control-container{font-size:11px}@media(max-width:650px){#map{height:calc(100dvh - 156px)}} #studio{position:fixed;top:90px;right:14px;z-index:12;width:260px;max-height:calc(100vh - 190px);overflow:auto;padding:13px;border:1px solid #44617d;border-radius:15px;background:#102037ed;box-shadow:0 8px 25px #0007}#studio h2{font-size:15px;margin:0 0 10px}#studio label{display:block;font-size:12px;margin:9px 0 4px;color:#c8d9e8}#studio select,#studio input{width:100%;background:#1d3552;border:1px solid #466080;border-radius:8px;color:white;padding:8px}#studio .checks{display:flex;align-items:center;gap:7px;font-size:12px;margin-top:8px}#studio .checks input{width:auto}#finalCard{display:none;position:fixed;bottom:122px;left:50%;transform:translateX(-50%);z-index:13;background:#112039ef;color:white;border:1px solid #57cfb6;border-radius:16px;padding:15px 28px;text-align:center;max-width:90vw}#finalCard strong{display:block;font-size:20px;margin-bottom:6px}@media(max-width:760px){#studio{position:relative;top:auto;right:auto;width:100%;max-height:none;border-radius:0}#map{height:65vh}#routeActions{bottom:44px}#finalCard{bottom:112px}} #addresses{position:fixed;top:90px;left:14px;z-index:13;width:315px;padding:15px;border:1px solid #42617e;border-radius:15px;background:#102037f2;box-shadow:0 8px 25px #0007}#addresses h2{margin:0 0 10px;font-size:16px}#addresses label{display:block;margin:12px 0 5px;font-size:13px;color:#d7e8f6}#addresses .searchrow{display:flex;gap:6px}#addresses input{min-width:0;flex:1;border:1px solid #47617f;background:#09182d;color:white;border-radius:9px;padding:10px}#addresses .searchrow button{flex-shrink:0}#addresses p{font-size:11px;color:#a5bbcf;line-height:1.5}#addresses button:disabled{opacity:.55}@media(max-width:760px){#addresses{position:relative;top:auto;left:auto;width:100%;border-radius:0}#studio{position:relative;top:auto;right:auto;width:100%}} #addresses .results{display:none;margin:5px 0 8px;max-height:165px;overflow-y:auto;border:1px solid #405875;border-radius:9px;background:#142945}#addresses .results.show{display:block}#addresses .result{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #35506c;border-radius:0;background:transparent;padding:9px 11px;font-size:12px;line-height:1.35}#addresses .result:hover{background:#274561}#addresses .fieldstate{font-size:11px;color:#a9e3d7;margin-top:5px;min-height:15px}#addresses .searchrow button{background:#18ad96;color:#061e26;font-weight:bold}#addresses .searchrow button:disabled{opacity:.65} #manualPanel{border-top:1px solid #3f607c;margin-top:14px;padding-top:12px}#manualPanel h2{font-size:14px}#manualPanel button{font-size:11px;padding:8px}#manualPanel input[type=range]{padding:0}#keyList button{margin:3px;font-size:11px}#keyList .keyrow{display:flex;align-items:center;gap:5px;padding:4px;border-bottom:1px solid #344961}#keyList .keyrow button:first-child{flex:1;text-align:left}#keyList .keyrow button:last-child{color:#ffc0c0} #transitionSoftness{width:100%} #addresses .mapsLink{font-size:11px;padding:5px 8px;background:transparent;border:1px solid #57728d;color:#bddded;margin-top:6px} #proTransport{position:fixed;bottom:0;left:0;right:0;z-index:25;background:#0b1b31f5;border-top:1px solid #4b6987;padding:8px 14px;display:flex;flex-direction:column;align-items:center;gap:5px}#proTimeline{width:min(100%,980px);accent-color:#29ddbc}#playClock{font-size:11px;color:#bcd3e7}.transport{display:flex;gap:5px;flex-wrap:wrap;justify-content:center}.transport button,.transport select{font-size:12px;padding:6px 9px}#routeActions{bottom:116px}#status{padding-bottom:135px}#imagePanel{border-top:1px solid #496782;padding-top:12px;margin-top:14px}#imagePanel input{margin-top:5px}#map.warm .maplibregl-canvas{filter:sepia(.18) saturate(1.2) contrast(1.08)}#map.contrast .maplibregl-canvas{filter:contrast(1.19) saturate(1.13)}#map.cool .maplibregl-canvas{filter:hue-rotate(9deg) contrast(1.1) saturate(.88)} @media(max-width:760px){#routeActions{bottom:130px}#status{padding-bottom:160px}} #landPanel{margin-top:15px;padding-top:15px;border-top:1px solid #496782}#landPanel h2{font-size:15px}#landPanel input,#landPanel select{width:100%;padding:8px;background:#1d3552;border:1px solid #466080;border-radius:8px;color:white}.landActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}.landActions button{font-size:11px;padding:8px}.landNotice{color:#9ab7cc;font-size:11px;line-height:1.5}#landHint{margin-top:10px}#landCard{display:none;position:fixed;z-index:14;left:50%;top:18%;transform:translateX(-50%);max-width:min(90vw,440px);min-width:230px;text-align:center;background:#0b1f37e8;color:#fff;border:1px solid #4edbbc;border-radius:17px;padding:15px 20px;box-shadow:0 15px 45px #0009;pointer-events:none}#landCard strong{display:block;font-size:19px;margin-bottom:7px}#landCard span{display:block;color:#5ff2d0;font-weight:800;font-size:16px}#landCard small{display:block;margin-top:5px;color:#d0e4ed} #cadastrePanel{border-top:1px solid #54718a;padding-top:12px;margin-top:16px}#cadastrePanel h2{font-size:15px}#cadastrePanel input{width:100%;min-width:0}#cadastrePanel button{margin-top:9px}.cadFlex{display:grid;grid-template-columns:1fr 1fr;gap:8px} /* V26: right-side editing dock and unobstructed preview */
+#studio{position:fixed!important;right:0!important;top:58px!important;bottom:100px!important;max-height:none!important;width:326px!important;border-radius:14px 0 0 14px!important;z-index:24!important;background:#0d1c30fa!important;padding:16px!important;overflow:auto}
+#studio.compact{height:55px!important;bottom:auto!important;overflow:hidden!important;width:250px!important}
+#toggleEditor{position:sticky;top:-16px;z-index:5;background:#1b4760;color:#fff}
+#addresses{top:70px!important;max-height:calc(100vh - 190px);overflow:auto}
+#routeActions{position:fixed!important;left:50%!important;bottom:114px!important;z-index:20!important;transform:translateX(-50%)!important;gap:6px!important;padding:7px!important;max-width:min(700px,calc(100vw - 352px))!important}
+#routeActions button{font-size:12px!important;padding:8px!important}
+#proTransport{z-index:30!important}
+#map{height:calc(100dvh - 163px)!important}
+#finalCard{bottom:175px!important}
+@media(min-width:1100px){#map{width:calc(100% - 326px)!important}#routeActions{left:calc((100vw - 326px)/2)!important}}
+@media(max-width:1099px){#studio{width:285px!important}#routeActions{max-width:calc(100vw - 300px)!important}#routeActions button{font-size:11px!important}}
+@media(max-width:750px){#studio{position:relative!important;right:auto!important;top:auto!important;bottom:auto!important;width:100%!important;max-height:370px!important;border-radius:0!important}#studio.compact{max-height:55px!important;width:100%!important}#addresses{position:relative!important;top:auto!important;max-height:none!important;width:100%!important}#map{height:52vh!important;width:100%!important}#routeActions{position:relative!important;left:auto!important;bottom:auto!important;transform:none!important;max-width:100%!important;justify-content:center;flex-wrap:wrap}#finalCard{bottom:190px!important}}
+#studio .studio-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:10px;position:sticky;top:30px;z-index:4;background:#0d1c30;padding:5px 0}#studio .studio-tabs button{padding:9px 2px;font-size:11px;border-radius:7px}#studio .studio-tabs button.selected{background:#21b69b;color:#042427;font-weight:800}#studio .studio-pane{display:none}#studio .studio-pane.active{display:block}#studio .studio-pane[hidden]{display:none!important}#studio #audioPanel{border-top:1px solid #4a6681;padding-top:10px;margin-top:10px}#studio #audioPanel button{margin-top:7px} #renderDock{position:fixed;left:14px;bottom:150px;z-index:32;background:#10243df2;border:1px solid #2c9d94;border-radius:12px;padding:12px;width:min(300px,90vw);box-shadow:0 6px 22px #0008}#renderDock strong{display:block;margin-bottom:7px}#renderDock button{background:#16b89b;color:#06232b;font-weight:800;width:100%}#renderDock button:disabled{opacity:.5}#renderDock select{background:#192f4c;color:#fff;border:1px solid #52708c;border-radius:6px;padding:6px}#renderStatus{font-size:12px;margin-top:8px;color:#bce7de;line-height:1.4}#renderDock progress{width:100%;height:9px;accent-color:#2ad4af}@media(max-width:750px){#renderDock{position:relative;left:auto;bottom:auto;width:100%;border-radius:0}} #studio{left:14px!important;right:auto!important;top:76px!important;width:315px!important;bottom:110px!important;max-height:none!important;overflow:auto}#studio h2{position:sticky;top:0;background:#102037;padding:6px 0;z-index:2}#editorNav{position:fixed;right:14px;top:76px;z-index:33;width:222px;background:#0c1c31f4;border:1px solid #496581;padding:12px;border-radius:14px;box-shadow:0 5px 20px #0006}#editorNav .editor-main{display:grid;grid-template-columns:1fr 1fr;gap:5px}#editorNav button{font-size:12px;padding:10px 5px}#editorNav button.selected{background:#16b69c;color:#071d24}#editorSub{display:flex;flex-direction:column;gap:5px;margin-top:10px}#editorSub button{text-align:left;padding:9px 10px}#studio .studio-pane{display:none}#studio .studio-pane.active{display:block}#studio .sub-pane{display:none}#studio .sub-pane.active{display:block}#renderDock{max-height:55vh;overflow:auto;left:auto!important;right:14px!important;bottom:108px!important;width:260px!important}#renderDock>label{display:block;font-size:12px;margin-top:9px}#renderDock .renderChoices{display:flex;flex-wrap:wrap;gap:5px 10px;margin:5px 0}#renderDock .renderChoices label{font-size:11px;white-space:nowrap}#renderDock input[type=radio]{accent-color:#23ceb0}#renderDock input[type=checkbox]{accent-color:#23ceb0}@media(max-width:850px){#editorNav{right:8px;top:64px;width:170px}#studio{left:8px!important;width:calc(100vw - 198px)!important;top:64px!important;bottom:115px!important}#renderDock{right:8px!important;width:170px!important;bottom:105px!important;max-height:38vh}#editorNav button{font-size:10px}}body.rendering #studio,body.rendering #editorNav,body.rendering #addresses,body.rendering #renderDock,body.rendering #routeActions,body.rendering #proTransport{visibility:hidden!important}body.rendering #map{z-index:100!important;border:0!important} #studio{width:340px!important;display:flex;flex-direction:column;gap:8px;padding:12px!important}#editorNav{position:static!important;inset:auto!important;width:100%!important;box-shadow:none!important;background:transparent!important;border:0!important;padding:0!important;z-index:auto!important;flex-shrink:0}#editorNav .editor-main{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px}#editorNav .editor-main button{font-size:10px;padding:9px 1px;white-space:nowrap}#editorSub{display:flex!important;flex-direction:row!important;flex-wrap:wrap;gap:5px!important;margin:8px 0 4px!important}#editorSub button{font-size:11px;padding:7px 9px;text-align:center!important}#studio .studio-pane.active{display:block;width:100%;min-height:80px}#studio .sub-pane.active{display:block}#studio #toggleEditor{flex-shrink:0}#editorNav strong{font-size:13px}#studio h2{position:static!important} @media(max-width:850px){#studio{left:8px!important;width:min(340px,calc(100vw - 190px))!important}#editorNav{width:100%!important;top:auto!important;right:auto!important}} </style></head><body>
+<header><div><h1>ROTAVIDO • Video Stüdyosu V12 • Rota Zaman Çizelgesi</h1><small>MapLibre GL JS · Uydu / Normal · İki konum seçimi</small></div><div id="controls"><button id="sat" class="active">🛰 Uydu</button><button id="normal">🗺 Normal</button><button id="viewAll" type="button">▢ Tüm Rotayı Göster</button><button id="reset">↺ Temizle</button></div></header>
+<div id="addresses"><h2>📍 Başlangıç ve Bitiş</h2><label for="fromAddress">Başlangıç adresi</label><div class="searchrow"><input id="fromAddress" autocomplete="street-address" placeholder="Örn. Çanakkale İskele"><button id="findFrom" type="button">Bul</button></div><div class="fieldstate" id="fromState">Başlangıç seçilmedi</div><div class="results" id="fromResults"></div><button type="button" id="googleFrom" class="mapsLink">Google Maps’te ara ↗</button><label for="toAddress">Bitiş adresi</label><div class="searchrow"><input id="toAddress" placeholder="Örn. Çanakkale Cuma Pazarı"><button id="findTo" type="button">Bul</button></div><div class="fieldstate" id="toState">Bitiş seçilmedi</div><div class="results" id="toResults"></div><button type="button" id="googleTo" class="mapsLink">Google Maps’te ara ↗</button><p>Google Maps konum bağlantısını veya açık adresi yapıştırın. Kısa maps.app.goo.gl bağlantıları için tam bağlantı ya da koordinat gerekir.  Dilersen haritadan da nokta seçebilir veya işaretçileri sürükleyebilirsin.</p></div><div id="studio"><button id="toggleEditor" type="button" style="width:100%;margin-bottom:10px">☰ Düzenleme Panelini Daralt</button><h2>🎬 V29 • Rota ve Ses</h2><p style="font-size:12px;color:#f9d998">Kamera yalnızca gerektiğinde yumuşak hareket eder; sürekli konum değiştirme kaldırıldı.</p><label>Kamera modeli</label><select id="cameraStyle"><option value="follow">Yolu takip et (üstten)</option><option value="cinema" selected>Sinematik eğimli kamera</option><option value="orbit">Dönüşlerde farklı açıdan görün</option><option value="overview">Yolculuğa genel bakış</option></select><label>Çizgi modeli</label><select id="lineStyle"><option value="glow">Parlak çift renk</option><option value="solid">Düz çizgi</option><option value="dash">Kesik çizgi</option><option value="neon">Neon çizgi</option></select><label>Rota rengi</label><input id="lineColor" type="color" value="#27dfbf"><label>Video süresi</label><select id="videoDuration"><option value="15">15 saniye</option><option value="20" selected>20 saniye</option><option value="30">30 saniye</option><option value="45">45 saniye</option></select><label>Video oranı (önizleme tercihi)</label><select id="videoFormat"><option value="9:16">9:16 Reels</option><option value="16:9" selected>16:9 Yatay</option><option value="1:1">1:1 Kare</option></select><label class="checks"><input id="followCamera" type="checkbox" checked> Kamera rotayı takip etsin</label><label class="checks"><input id="showFinal" type="checkbox" checked> Varışta final kartı göster</label><label>İşletme adı</label><input id="businessName" placeholder="İşletmenizin adı"><div id="newRouteOptions"><label>Çizginin önündeki simge</label><select id="vehicleType"><option value="arrow">➤ Yön oku</option><option value="car">🚗 Araba</option><option value="walk">🚶 Yürüyen kişi</option><option value="none">Simgesiz</option></select><label>Çizgi deseni</label><select id="dashPreset"><option value="normal">Standart</option><option value="short">Kısa kesik</option><option value="long">Uzun kesik</option><option value="dot">Noktalı</option><option value="dashdot">Kesik + nokta</option></select></div><div id="manualPanel"><h2>🎥 Akıcı Kamera / Anahtar Kareler</h2><label class="checks"><input id="manualEnabled" type="checkbox"> Manuel kamera hareketini kullan</label><label>Zaman: <strong id="timeLabel">0.0 sn</strong> <span id="routePercent" style="font-size:11px;color:#34dfbc">• Rota %0</span></label><input id="cameraTime" type="range" min="0" max="20" value="0" step="0.1"><label>Yakınlık: <strong id="zoomLabel">15.2</strong></label><input id="manualZoom" type="range" min="11" max="19" step="0.1" value="15.2"><label>Bakış yönü: <strong id="bearingLabel">0°</strong></label><input id="manualBearing" type="range" min="-180" max="180" step="1" value="0"><label>Kamera eğimi: <strong id="pitchLabel">0°</strong></label><input id="manualPitch" type="range" min="0" max="65" step="1" value="0"><div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap"><button id="saveKey" type="button">＋ Kare Ekle / Güncelle</button><button id="previewKeys" type="button">▶ Yumuşak Önizleme</button><button id="deleteKeys" type="button">Tümünü Sil</button></div><label>Geçiş stili</label><select id="transitionMode"><option value="smooth" selected>Yumuşak sinematik</option><option value="extra">Ekstra yumuşak</option><option value="linear">Sabit hız</option></select><label>Geçiş yumuşaklığı: <strong id="smoothLabel">65%</strong></label><input id="transitionSoftness" type="range" min="0" max="100" value="65" step="5"><div id="keyStrip" style="position:relative;height:18px;border-radius:8px;background:#34506a;margin-top:8px"></div><div id="keyList" style="font-size:11px;margin-top:8px;color:#d7e8f6">Henüz kamera karesi yok.</div><p style="font-size:11px;color:#9fc0d9">Zamanı seç, haritayı konumlandır, yakınlık / bakış yönü / eğimi ayarla ve kareyi kaydet. Aynı saniyede yeniden kaydetmek kareyi günceller. Geçiş stiliyle hareketin karakterini belirle.</p><div id="labelPanel" style="border-top:1px solid #41617f;margin-top:14px;padding-top:12px"><h2>📍 Sabit Konum Yazıları</h2><p style="font-size:11px;color:#abc9df">Önce «Konumu Haritadan Seç» butonuna, sonra istediğin noktaya tıkla. Yazı o coğrafi konuma sabitlenir.</p><button type="button" id="pickLabel">📌 Konumu Haritadan Seç</button><label>Gösterilecek yazı</label><input id="labelText" maxlength="80" placeholder="Örn. Çanakkale İskele"><label>Yazı rengi</label><input id="labelColor" type="color" value="#ffffff"><label>Yazı büyüklüğü</label><select id="labelSize"><option value="12">Küçük</option><option value="15" selected>Orta</option><option value="20">Büyük</option></select><label class="checks"><input id="labelAlways" type="checkbox" checked> Video boyunca göster</label><div id="labelTimes" style="display:none"><label>Başlangıç / Bitiş (saniye)</label><div style="display:flex;gap:6px"><input id="labelFrom" type="number" min="0" max="45" value="0" step=".5"><input id="labelTo" type="number" min="0" max="45" value="20" step=".5"></div></div><button id="saveLabel" type="button" style="margin-top:9px">＋ Yazıyı Kaydet</button><div id="labelList" style="font-size:12px;margin-top:10px"></div></div><div id="cadastrePanel"><h2>🗺️ Görselden Ada / Parsel Bilgisi</h2><label>TKGM bilgi ekranı görseli (PNG / JPG)</label><input id="cadScreenshot" type="file" accept="image/png,image/jpeg,image/webp"><button id="cadReadScreenshot" type="button">📷 Görseli Oku ve Bilgileri Doldur</button><p id="cadOcrStatus" class="landNotice" role="status">Görsel metni tarayıcınızda okunur. Görsel bir sunucuya yüklenmez. OCR için harici kütüphane indirilebilir.</p><h2 style="margin-top:14px">Ada / Parsel ile Bul</h2><label>İl</label><input id="cadProvince" placeholder="Örn. Çanakkale"><label>İlçe</label><input id="cadCounty" placeholder="Örn. Ezine"><label>Mahalle / Köy</label><input id="cadVillage" placeholder="Örn. Geyikli"><div class="cadFlex"><div><label>Ada No</label><input id="cadBlock" inputmode="numeric" placeholder="Örn. 125"></div><div><label>Parsel No</label><input id="cadParcel" inputmode="numeric" placeholder="Örn. 7"></div></div><button id="cadLookup" type="button">↗ TKGM'de Parseli Sorgula</button><p class="landNotice">TKGM'de il, ilçe, mahalle, ada ve parseli sorgula. Parsel sonuçlarından GeoJSON indir. Sonra aşağıdan dosyayı yükle; sınır ve kamera konumu otomatik hazırlanır. Doğrudan sorgu henüz bağlantılı değil.</p><label>Parsel GeoJSON dosyası</label><input id="cadFile" type="file" accept=".geojson,.json,application/geo+json,application/json"><button id="cadImport" type="button">⬆ Parseli Haritada Çiz ve Göster</button><div id="cadStatus" class="landNotice" role="status">Henüz kadastro geometrisi yüklenmedi.</div></div><div id="landPanel"><h2>🌾 Arsa / Tarla Tanıtımı</h2><label>İlan başlığı</label><input id="landTitle" placeholder="Örn. Çanakkale'de Yatırımlık Tarla" maxlength="100"><label>İlan türü</label><select id="landType"><option>Satılık Arsa</option><option>Satılık Tarla</option><option>Kiralık Arsa</option><option>Kiralık Tarla</option></select><label>Alan (m²)</label><input id="landArea" type="number" min="0" placeholder="Örn. 2500"><label>Fiyat (TL) — isteğe bağlı</label><input id="landPrice" type="number" min="0" placeholder="Örn. 3500000"><label>İl / İlçe / Mahalle</label><input id="landDistrict" placeholder="Örn. Ezine / Çanakkale" maxlength="120"><label>İlan / Parsel bilgisi (isteğe bağlı)</label><input id="landParcel" placeholder="Ada / parsel bilgisi" maxlength="100"><label>Danışman / İletişim</label><input id="landAgent" placeholder="Emlak ofisi · Telefon" maxlength="120"><div class="landActions"><button id="drawLand" type="button">✏️ Alanı Çiz</button><button id="finishLand" type="button" disabled>✓ Çizimi Bitir</button><button id="undoLand" type="button">↶ Son Köşeyi Geri Al</button><button id="clearLand" type="button">Alanı Sil</button><button id="focusLand" type="button">▢ Arsaya Odaklan</button></div><p class="landNotice">Haritaya sırayla köşe noktalarını tıkla (en az 3 nokta). Çizim yalnızca tanıtım amaçlıdır; resmî kadastro sınırı veya tapu alanı yerine geçmez.</p><label>Tanıtım kartı</label><label class="checks"><input type="checkbox" id="landCardEnabled"> Videoda mülk bilgilerini göster</label><label>Kartın görüneceği saniye</label><div style="display:flex;gap:6px"><input id="landFrom" type="number" min="0" step=".5" value="0"><input id="landTo" type="number" min="0" step=".5" value="20"></div><button id="landCardUpdate" type="button">💾 Kartı Güncelle</button><label>Hazır arsa teması</label><select id="landPreset"><option value="turquoise">Turkuaz</option><option value="gold">Altın</option><option value="red">Kırmızı</option><option value="green">Yeşil</option><option value="purple">Mor</option><option value="blue">Mavi</option><option value="white">Beyaz</option><option value="custom">Özel renk</option></select><label>Arsa sınır rengi</label><input id="landStrokeColor" type="color" value="#40f5ca"><label>Arsa dolgu rengi</label><input id="landFillColor" type="color" value="#26d9b2"><label>Dolgu yoğunluğu</label><input id="landFillOpacity" type="range" min="0" max="80" value="22"><label>Sınır kalınlığı</label><input id="landStrokeWidth" type="range" min="1" max="14" value="4"><label>Köşe noktası rengi</label><input id="landPointColor" type="color" value="#ffe38e"><label>Köşe noktası boyutu</label><input id="landPointRadius" type="range" min="2" max="14" value="5"><label>Arsa efekti</label><select id="landEffect"><option value="none">Efektsiz</option><option value="glow">Yumuşak parlama</option><option value="neon">Neon sınır</option><option value="dash">Kesik sınır</option><option value="pulse">Nabız / Parlama</option></select><div id="landHint" class="landNotice">Henüz bir alan çizilmedi.</div><div id="landStats" class="landNotice"></div><div class="landActions"><button id="saveProject" type="button">⬇ Projeyi Kaydet</button><button id="loadProject" type="button">⬆ Proje Aç</button><input id="projectFile" type="file" accept="application/json,.json" style="display:none"></div></div><div id="audioPanel"><h2>🎙 Seslendirme / Müzik</h2><label>Ses dosyası (MP3 / WAV / M4A)</label><input id="voiceFile" type="file" accept="audio/*"><label>Ses seviyesi</label><input id="voiceVolume" type="range" min="0" max="100" value="85"><button id="voicePreview" type="button">▶ Sesi Dinle</button><button id="voiceMute" type="button">🔇 Sesi Kapat</button><p style="font-size:11px;color:#adc6db">Önizlemede sesi video zamanına senkronlar. MP4 dışa aktarmaya gömmez.</p></div><div id="motionPanel" style="border-top:1px solid #54718a;margin-top:14px;padding-top:13px"><h2>🎞 Akıcı Hareket / Hız Eğrisi</h2><p style="font-size:11px;color:#a9c4d8">Kamera anahtar karelerde durmadan geçer. Aşağıdaki hızlar video boyunca rota ve kameraya birlikte uygulanır.</p><label>Başlangıç hızı <strong id="speedFirstVal">1×</strong></label><input type="range" id="speedFirst" min=".25" max="3" step=".25" value="1"><label>Orta bölüm hızı <strong id="speedMidVal">1×</strong></label><input type="range" id="speedMid" min=".25" max="3" step=".25" value="1"><label>Final hızı <strong id="speedLastVal">1×</strong></label><input type="range" id="speedLast" min=".25" max="3" step=".25" value="1"><button id="resetSpeed" type="button">↺ Normal Hıza Dön</button></div><div id="roadTextPanel" style="border-top:1px solid #54718a;margin-top:14px;padding-top:13px"><h2>🛣 Yol Üstü Yazısı</h2><label>Yol ismi</label><input id="roadText" maxlength="90" placeholder="İskele – Gökçeada Yolu"><label>Görünme biçimi</label><select id="roadTextMode"><option value="full">Tüm rota boyunca</option><option value="progress">Yalnızca gidilen yol</option></select><label>Yazı boyutu</label><input id="roadTextSize" type="range" min="11" max="23" value="15"><label>Tekrar mesafesi (piksel)</label><input id="roadTextSpacing" type="range" min="200" max="800" step="50" value="450"><label>Yazı rengi</label><input id="roadTextColor" type="color" value="#ffffff"><button id="applyRoadText" type="button">✓ Yol Yazısını Uygula</button><button id="clearRoadText" type="button">Sil</button><p style="font-size:11px;color:#a9c4d8">Yazı yolun kıvrımlarına uyum sağlar; harita üzerindeki rota geometrisine bağlıdır.</p></div><div id="visualPanel" style="border-top:1px solid #496782;padding-top:12px;margin-top:14px"><h2>🎨 Sinematik Görünüm</h2><label>Renk / Işık</label><select id="colorPreset"><option value="normal">Doğal</option><option value="warm">Sıcak sinema</option><option value="contrast">Yüksek kontrast</option><option value="cool">Soğuk sinema</option></select><label>Kamera yakınlaşması</label><select id="zoomPreset"><option value="gentle">Yumuşak</option><option value="strong">Güçlü yakınlaşma</option><option value="none">Sabit yakınlık</option></select><p style="font-size:11px">Eğimli perspektif 3D bina modeli değildir. Gerçek 3D için ayrı veri kaynağı gerekir.</p></div><div id="imagePanel"><h2>🖼 Sabit Konum Resmi</h2><p style="font-size:11px">Resmi seç, «Haritadan Yer Belirle» düğmesine bas ve haritada konum işaretle.</p><input id="imageFile" type="file" accept="image/png,image/jpeg,image/webp"><button id="pickImage" type="button">📍 Haritadan Yer Belirle</button><label>Resim genişliği (piksel)</label><input id="imageWidth" type="number" value="100" min="24" max="300"><label>Görünme aralığı (sn)</label><div style="display:flex;gap:7px"><input id="imageFrom" type="number" value="0" min="0" step=".5"><input id="imageTo" type="number" value="20" min="0" step=".5"></div><button id="saveImage" type="button">＋ Resmi Kaydet</button><div id="imageList"></div></div></div></div><div id="map"></div><div id="landCard" aria-live="polite"><strong id="landCardTitle">Arsa / Tarla Tanıtımı</strong><span id="landCardInfo"></span><small id="landCardDistrict"></small><small id="landCardAgent"></small></div><div id="finalCard"><strong id="finalName">Hedefe ulaştınız!</strong><span>📍 Konumunuza hoş geldiniz</span></div><div id="routeActions"><button id="routeBtn" disabled>↗ Sokak Rotası Oluştur</button><button id="playBtn" disabled>▶ Animasyonu Oynat</button><button id="pauseBtn" type="button" disabled>⏸ Duraklat</button><button id="resumeBtn" type="button" disabled>▶ Devam Et</button></div><div id="renderDock"><strong>🎞 Video Dışa Aktar</strong><label>Video formatı</label><div class="renderChoices"><label><input type="radio" name="renderAspect" value="9:16"> 9:16 Reels</label><label><input type="radio" name="renderAspect" value="16:9" checked> 16:9 Yatay</label><label><input type="radio" name="renderAspect" value="1:1"> 1:1 Kare</label></div><label>Çözünürlük</label><div class="renderChoices"><label><input type="radio" name="renderQuality" value="720"> 720p</label><label><input type="radio" name="renderQuality" value="1080" checked> 1080p</label><label><input type="radio" name="renderQuality" value="2160"> 4K</label></div><label>Kare hızı</label><div class="renderChoices"><label><input type="radio" name="renderFps" value="30" checked> 30 FPS</label><label><input type="radio" name="renderFps" value="60"> 60 FPS</label></div><label style="font-size:12px;display:flex;align-items:center;gap:5px;margin-bottom:7px"><input type="checkbox" id="renderAudio" checked> Yüklenen seslendirmeyi dahil et</label><button id="renderStart" type="button">⬇ Video Render Al</button><button id="renderCancel" type="button" style="display:none;background:#5e2430;color:#fff;margin-top:7px">■ Kaydı Durdur</button><progress id="renderProgress" max="100" value="0" style="display:none"></progress><div id="renderStatus">Video tarayıcıda kaydedilir. Desteklenen formatı otomatik seçer.</div></div><div id="proTransport"><div class="transport"><button id="toStart">⏮</button><button id="skipBack">−5 sn</button><button id="reverse">◀ Geri</button><button id="proPlay">▶ Oynat</button><button id="proPause">⏸</button><button id="skipForward">+5 sn</button><button id="toEnd">⏭</button><select id="playSpeed"><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></div><input id="proTimeline" type="range" min="0" max="20" step=".05" value="0"><div id="playClock">00:00 / 00:20</div></div><div id="status">Harita yükleniyor… Haritaya tıklayarak başlangıç ve hedef seçin.</div>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const satellite={type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,attribution:'Imagery © Esri and its licensors',maxzoom:19};
+const normal={type:'raster',tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,attribution:'© OpenStreetMap contributors',maxzoom:19};
+document.getElementById('toggleEditor').onclick=()=>{const panel=document.getElementById('studio');panel.classList.toggle('compact');document.getElementById('toggleEditor').textContent=panel.classList.contains('compact')?'☰ Düzenleme Panelini Aç':'☰ Düzenleme Panelini Daralt';setTimeout(()=>map.resize(),160);};
+const status=document.querySelector('#status');let mode='sat',points=[],markers=[];const map=new maplibregl.Map({container:'map',style:{version:8,glyphs:'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',sources:{base:satellite},layers:[{id:'base',type:'raster',source:'base'}]},center:[26.4064,40.1467],zoom:14,attributionControl:true,preserveDrawingBuffer:true});
+map.addControl(new maplibregl.NavigationControl(),'bottom-right');
+map.on('load',()=>status.textContent='Uydu hazır. Başlangıç ve hedef noktası seçmek için haritaya tıklayın.');
+map.on('error',e=>{console.error('Rotavido MapLibre:',e.error);status.textContent='Harita hatası: '+(e.error?.message||'Ağ bağlantısını kontrol edin.');});
+function switchMode(next){mode=next;document.querySelector('#sat').classList.toggle('active',mode==='sat');document.querySelector('#normal').classList.toggle('active',mode==='normal');if(map.getLayer('base'))map.removeLayer('base');if(map.getSource('base'))map.removeSource('base');map.addSource('base',mode==='sat'?satellite:normal);map.addLayer({id:'base',type:'raster',source:'base'},map.getLayer('route')?'route':undefined);status.textContent=(mode==='sat'?'Uydu':'Normal')+' haritası yükleniyor…';}
+document.querySelector('#sat').onclick=()=>switchMode('sat');document.querySelector('#normal').onclick=()=>switchMode('normal');
+
+const studio=id=>document.getElementById(id);function styleRoute(){
+ if(!map.getLayer('route')||!map.getLayer('animated'))return;
+ const mode=studio('lineStyle').value,color=studio('lineColor').value,d=studio('dashPreset').value;
+ const styles={normal:[1,0],short:[1.5,1.5],long:[5,2.2],dot:[.25,1.7],dashdot:[4,1,.3,1]};
+ const dash=d!=='normal'?styles[d]:(mode==='dash'?[2,2]:styles.normal);
+ const width=mode==='neon'?7:mode==='glow'?6:5;
+ map.setPaintProperty('route','line-color',color);
+ map.setPaintProperty('route','line-width',width);
+ map.setPaintProperty('route','line-opacity',.4);
+ map.setPaintProperty('animated','line-color',mode==='neon'?'#fff2ad':mode==='solid'?color:'#ffc354');
+ map.setPaintProperty('animated','line-width',width+2);
+ map.setPaintProperty('animated','line-opacity',1);
+ map.setPaintProperty('route','line-dasharray',dash);
+ map.setPaintProperty('animated','line-dasharray',dash);
+}
+function setDashType(){styleRoute();}
+studio('dashPreset').addEventListener('change',styleRoute);
+studio('lineStyle').addEventListener('change',styleRoute);
+studio('lineColor').addEventListener('input',styleRoute);
+let path=[],animFrame=null,animatedMarker=null;
+const routeBtn=document.querySelector('#routeBtn'),playBtn=document.querySelector('#playBtn');
+let playbackState=null;
+function refreshPlaybackButtons(){studio('pauseBtn').disabled=!playbackState||playbackState.paused;studio('resumeBtn').disabled=!playbackState||!playbackState.paused;}
+studio('pauseBtn').onclick=()=>{
+ if(!playbackState||playbackState.paused)return;
+ playbackState.paused=true;playbackState.pausedAt=performance.now();
+ if(animFrame)cancelAnimationFrame(animFrame);animFrame=null;
+ map.stop();refreshPlaybackButtons();status.textContent='Önizleme duraklatıldı. Devam Et ile aynı saniyeden sürdür.';
+};
+studio('resumeBtn').onclick=()=>{
+ if(!playbackState||!playbackState.paused)return;
+ const now=performance.now();
+ playbackState.shiftTime(now-playbackState.pausedAt);
+ playbackState.paused=false;playbackState.pausedAt=0;
+ refreshPlaybackButtons();animFrame=requestAnimationFrame(playbackState.frame);
+ status.textContent='Önizleme kaldığı yerden devam ediyor…';
+};
+function stopAnimation(){
+ if(animFrame)cancelAnimationFrame(animFrame);animFrame=null;
+ playbackState=null;refreshPlaybackButtons();
+ if(animatedMarker){animatedMarker.remove();animatedMarker=null;}
+}
+function cleanRoute(){if(timelineMarker){timelineMarker.remove();timelineMarker=null;}studio('routePercent').textContent='• Rota %0';studio('finalCard').style.display='none';stopAnimation();path=[];routeBtn.disabled=true;playBtn.disabled=true;for(const id of ['animated','route'])if(map.getLayer(id))map.removeLayer(id);for(const id of ['animated','route'])if(map.getSource(id))map.removeSource(id);}
+function clear(){cleanRoute();markers.forEach(m=>m.remove());markers=[];points=[];document.getElementById('fromAddress').value='';document.getElementById('toAddress').value='';queryStatus(0,'Başlangıç seçilmedi');queryStatus(1,'Bitiş seçilmedi');clearResults(0);clearResults(1);status.textContent='Temizlendi. Başlangıç ve bitiş adreslerini arayın veya haritadan işaretleyin.';}
+document.querySelector('#reset').onclick=clear;
+document.querySelector('#viewAll').onclick=()=>{if(points[0]&&points[1])map.fitBounds(new maplibregl.LngLatBounds(points[0],points[1]),{padding:110,maxZoom:16,duration:850});else status.textContent='Önce başlangıç ve bitiş noktalarını seçin.';};
+function setPoint(which,p,description){
+ cleanRoute();
+ const color=which===0?'#25d6aa':'#f56868';
+ if(markers[which])markers[which].remove();
+ const el=document.createElement('div');
+ el.style.cssText='width:22px;height:22px;border:3px solid white;border-radius:50%;background:'+color+';box-shadow:0 2px 8px #0008;cursor:grab';
+ const marker=new maplibregl.Marker({element:el,draggable:true}).setLngLat(p).addTo(map);
+ marker.on('dragend',()=>{const c=marker.getLngLat();setPoint(which,[c.lng,c.lat],'İşaretçi taşındı');lookupPointName(which,[c.lng,c.lat]);});
+ markers[which]=marker;points[which]=p;
+ queryStatus(which,'Konum seçildi ✓');
+ const ready=Array.isArray(points[0])&&Array.isArray(points[1]);
+ routeBtn.disabled=!ready;
+ status.textContent=(description|| (which===0?'Başlangıç':'Bitiş')+' seçildi')+(ready?' — Sokak Rotası Oluştur butonuna basın.':' — diğer noktayı seçin.');
+ // Seçim sırasında mevcut yakınlık ve kamera açısı korunur.
+ // Kullanıcı isterse ayrı buton ile tüm rotayı görür.
+
+}
+map.on('click',e=>{
+ if(labelPick||imagePick||landDrawing)return;
+ const which=!points[0]?0:!points[1]?1:0;
+ const p=[e.lngLat.lng,e.lngLat.lat];setPoint(which,p);lookupPointName(which,p);
+});
+const reverseRequests=[0,0];
+async function lookupPointName(which,p){
+ const request=++reverseRequests[which];
+ const field=document.getElementById(which===0?'fromAddress':'toAddress');
+ const state=document.getElementById(which===0?'fromState':'toState');
+ const fallback=p[1].toFixed(6)+', '+p[0].toFixed(6);
+ field.value=fallback;state.textContent='Seçilen yerin adresi aranıyor…';
+ const ctrl=new AbortController(),timeout=setTimeout(()=>ctrl.abort(),7000);
+ try{
+  const url='https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=1&lat='+p[1]+'&lon='+p[0];
+  const res=await fetch(url,{signal:ctrl.signal,headers:{Accept:'application/json'}});
+  if(!res.ok)throw Error('Adres servisi yanıt vermedi');
+  const data=await res.json();
+  if(request!==reverseRequests[which])return;
+  const name=data.name||data.display_name||fallback;
+  field.value=name;state.textContent='Seçilen konum: '+name;
+ }catch(e){if(request===reverseRequests[which])state.textContent='Adres adı bulunamadı. Koordinat gösteriliyor.';}
+ finally{clearTimeout(timeout);}
+}
+const queryStatus=(which,msg)=>{document.getElementById(which===0?'fromState':'toState').textContent=msg;};
+function clearResults(which){const el=document.getElementById(which===0?'fromResults':'toResults');el.replaceChildren();el.classList.remove('show');}
+function readGoogleCoordinates(q){
+ let url;try{url=new URL(q);}catch{return null;}
+ if(!/(^|\.)google\.[a-z.]+$/.test(url.hostname)&&url.hostname!=='www.google.com'&&url.hostname!=='maps.google.com')return null;
+ const raw=decodeURIComponent(url.toString());
+ let m=raw.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
+ if(m)return [Number(m[2]),Number(m[1])];
+ for(const key of ['query','q','ll','center']){
+   const value=url.searchParams.get(key)||'';
+   m=value.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/);
+   if(m)return [Number(m[2]),Number(m[1])];
+ }
+ return null;
+}
+async function findAddress(which){
+ const input=document.getElementById(which===0?'fromAddress':'toAddress'),q=input.value.trim(),button=document.getElementById(which===0?'findFrom':'findTo');
+ clearResults(which);
+ if(q.length<3){queryStatus(which,'Adres veya koordinat girin.');return;}
+ const coords=q.match(/^(-?\d{1,2}(?:\.\d+)?)\s*[,;]\s*(-?\d{1,3}(?:\.\d+)?)$/);
+ const point=coords?[Number(coords[2]),Number(coords[1])]:readGoogleCoordinates(q);
+ if(point&&Math.abs(point[1])<=90&&Math.abs(point[0])<=180){setPoint(which,point,'Konum seçildi');queryStatus(which,'Konum işaretlendi ✓');return;}
+ if(/^https?:\/\//.test(q)){queryStatus(which,'Bu bağlantıda koordinat yok. Google Maps’ten enlem-boylam kopyalayın.');return;}
+ button.disabled=true;button.textContent='Aranıyor';queryStatus(which,'Adres araması yapılıyor…');
+ const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),13000);
+ const clean=q.replace(/\b(?:No\s*[:.]?\s*\d+[a-zA-Z]?|Daire\s*[:.]?\s*\d+|Kat\s*[:.]?\s*\d+)\b/gi,'').replace(/\s+,/g,',').trim();
+ const candidates=[q];
+ if(clean!==q)candidates.push(clean);
+ const parts=clean.split(',').map(p=>p.trim()).filter(Boolean);
+ if(parts.length>=2)candidates.push(parts.slice(0,Math.max(1,parts.length-1)).join(', '));
+ const normalize=v=>v.toLocaleLowerCase('tr-TR').normalize('NFKD').replace(/[\u0300-\u036f]/g,'');
+ function score(result){
+  const terms=normalize(clean).split(/[\s,]+/).filter(t=>t.length>2);
+  const hay=normalize(result.display_name);
+  return terms.filter(t=>hay.includes(t)).length/Math.max(1,terms.length);
+ }
+ let results=[],provider='';
+ try{
+  // Photon indexes streets/POIs differently from Nominatim.
+  for(const term of [...new Set(candidates)].slice(0,2)){
+   const url='https://photon.komoot.io/api/?q='+encodeURIComponent(term)+'&limit=8';
+   try{
+    const response=await fetch(url,{signal:controller.signal});
+    if(response.ok){
+     const data=await response.json();
+     const found=(data.features||[]).filter(x=>Array.isArray(x.geometry?.coordinates)).map(x=>({
+      lon:x.geometry.coordinates[0],lat:x.geometry.coordinates[1],
+      display_name:[x.properties?.name,x.properties?.street,x.properties?.housenumber,x.properties?.district,x.properties?.city,x.properties?.state,x.properties?.country].filter(Boolean).join(', ')
+     })).filter(x=>Number.isFinite(x.lon)&&Number.isFinite(x.lat));
+     if(found.length){results=found;provider='Photon';break;}
+    }
+   }catch(e){if(e.name==='AbortError')throw e;}
+  }
+  if(!results.length){
+   const center=map.getCenter(),box=[center.lng-1,center.lat+1,center.lng+1,center.lat-1].join(',');
+   const term=candidates[candidates.length-1];
+   const url='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=8&viewbox='+encodeURIComponent(box)+'&q='+encodeURIComponent(term);
+   const response=await fetch(url,{signal:controller.signal,headers:{Accept:'application/json'}});
+   if(response.ok){results=await response.json();provider='Nominatim';}
+  }
+  if(!results.length){queryStatus(which,'Açık adres bulunamadı. Google Maps’ten koordinat alabilir veya haritadan konumu seçebilirsin.');return;}
+  results.sort((x,y)=>score(y)-score(x));
+  const holder=document.getElementById(which===0?'fromResults':'toResults');
+  const best=score(results[0]);
+  for(const result of results){
+   const p=[Number(result.lon),Number(result.lat)];
+   if(!p.every(Number.isFinite))continue;
+   const choice=document.createElement('button');choice.type='button';choice.className='result';
+   choice.textContent=result.display_name||'Konum';
+   choice.onclick=()=>{
+    setPoint(which,p,'Konum seçildi');input.value=result.display_name;clearResults(which);
+    queryStatus(which,'Konum seçildi. Haritada doğrula; sonuç yaklaşık olabilir.');
+   };
+   holder.appendChild(choice);
+  }
+  holder.classList.add('show');
+  queryStatus(which,best<.45?'Yakın olabilecek yerler bulundu; kesin adres olarak kabul etme.':provider+' sonuçları bulundu. Doğru konumu seç.');
+ }catch(e){queryStatus(which,e.name==='AbortError'?'Arama süresi doldu, tekrar dene.':'Arama hatası: '+e.message);}
+ finally{clearTimeout(timeout);button.disabled=false;button.textContent='Bul';}
+}
+document.getElementById('googleFrom').onclick=()=>window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(studio('fromAddress').value),'_blank','noopener,noreferrer');
+document.getElementById('googleTo').onclick=()=>window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(studio('toAddress').value),'_blank','noopener,noreferrer');
+document.getElementById('findFrom').onclick=()=>findAddress(0);
+document.getElementById('findTo').onclick=()=>findAddress(1);
+for(const [id,index] of [['fromAddress',0],['toAddress',1]]){
+ document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();findAddress(index);}});
+}
+routeBtn.onclick=async()=>{
+ if(points.length!==2)return;
+ cleanRoute();routeBtn.disabled=true;status.textContent='Gerçek araç rotası hesaplanıyor…';
+ try{
+  const a=points[0],b=points[1];
+  const url='https://routing.openstreetmap.de/routed-car/route/v1/driving/'+a.join(',')+';'+b.join(',')+'?overview=full&geometries=geojson';
+  const response=await fetch(url);if(!response.ok)throw Error('HTTP '+response.status);
+  const data=await response.json();if(data.code!=='Ok'||!data.routes?.length)throw Error('Rota bulunamadı');
+  path=data.routes[0].geometry.coordinates;
+  map.addSource('route',{type:'geojson',data:{type:'Feature',properties:{},geometry:{type:'LineString',coordinates:path}}});
+  map.addLayer({id:'route',type:'line',source:'route',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#24b8ae','line-width':4,'line-opacity':.38}});
+  map.addSource('animated',{type:'geojson',data:{type:'Feature',properties:{},geometry:{type:'LineString',coordinates:[path[0],path[0]]}}});
+  map.addLayer({id:'animated',type:'line',source:'animated',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#ffd452','line-width':8,'line-opacity':1}});
+  const bds=path.reduce((bounds,p)=>bounds.extend(p),new maplibregl.LngLatBounds(path[0],path[0]));map.fitBounds(bds,{padding:80,duration:850});
+  playBtn.disabled=false;routeBtn.disabled=false;styleRoute();setDashType();
+  timeline.max=durationSeconds();pausePro();seekPro(0);
+  status.textContent='Sokak rotası hazır: '+(data.routes[0].distance/1000).toFixed(2)+' km. Animasyon butonuna basın.';
+ }catch(err){routeBtn.disabled=false;status.textContent='Rota hatası: '+err.message+'. Noktaları değiştirebilirsiniz.';}
+};
+let timelineMarker=null;
+let progressedRoadCoords=[];
+function timelineRouteAt(sec){
+ if(path.length<2)return;
+ const rad=Math.PI/180,dist=(a,b)=>{
+ const la=a[1]*rad,lb=b[1]*rad,dl=(b[1]-a[1])*rad,dlo=(b[0]-a[0])*rad;
+ const v=Math.sin(dl/2)**2+Math.cos(la)*Math.cos(lb)*Math.sin(dlo/2)**2;
+ return 6371000*2*Math.atan2(Math.sqrt(v),Math.sqrt(1-v));
+ };
+ const lengths=[0];for(let i=1;i<path.length;i++)lengths.push(lengths[i-1]+dist(path[i-1],path[i]));
+ const fraction=Math.min(1,Math.max(0,sec/manualDuration()));
+ const meters=fraction*lengths[lengths.length-1];
+ let k=1;while(k<lengths.length-1&&lengths[k]<meters)k++;
+ const alpha=(meters-lengths[k-1])/Math.max(.0001,lengths[k]-lengths[k-1]);
+ const here=[path[k-1][0]+(path[k][0]-path[k-1][0])*alpha,path[k-1][1]+(path[k][1]-path[k-1][1])*alpha];
+ const source=map.getSource('animated');
+ progressedRoadCoords=[...path.slice(0,k),here];
+ if(source)source.setData({type:'Feature',properties:{},geometry:{type:'LineString',coordinates:progressedRoadCoords}});
+ if(!timelineMarker){
+  const el=document.createElement('div');
+  el.style.cssText='width:23px;height:23px;border-radius:50%;background:#ffe082;border:4px solid #fff;box-shadow:0 0 0 7px #ffcc4455,0 0 18px #000;pointer-events:none';
+  timelineMarker=new maplibregl.Marker({element:el}).setLngLat(here).addTo(map);
+ }else timelineMarker.setLngLat(here);
+ studio('routePercent').textContent='• Rota %'+Math.round(fraction*100);
+}
+const locationLabels=[];
+let labelPick=false,labelPosition=null,labelEdit=-1;
+const labelStore='rotavido-location-labels-v18';
+function saveLocationLabels(){try{localStorage.setItem(labelStore,JSON.stringify(locationLabels.map(({lngLat,text,color,size,from,to,always})=>({lngLat,text,color,size,from,to,always}))));}catch(e){}}
+function updateLabelVisibility(sec){
+ locationLabels.forEach(item=>{
+  const el=item.marker.getElement(),show=item.always||(sec>=item.from&&sec<=item.to);
+  el.style.display=show?'block':'none';
+  const fade=item.always?1:Math.min(1,Math.max(0,(sec-item.from)/.55,(0)),Math.max(0,(item.to-sec)/.55));
+  el.style.opacity=show?String(fade):'0';
+  el.style.transition='opacity 120ms linear';
+ });
+}
+function buildLabel(item){
+ const el=document.createElement('div');el.style.cssText='background:#10223adf;padding:6px 10px;border:1px solid #8aaac8;border-radius:9px;white-space:nowrap;font-weight:800;box-shadow:0 4px 16px #0008;pointer-events:auto;cursor:pointer;max-width:210px;overflow:hidden;text-overflow:ellipsis';
+ el.textContent=item.text;el.style.color=item.color;el.style.fontSize=item.size+'px';
+ item.marker=new maplibregl.Marker({element:el,anchor:'bottom',offset:[0,-12],draggable:false}).setLngLat(item.lngLat).addTo(map);
+ el.addEventListener('click',e=>{e.stopPropagation();editLabel(locationLabels.indexOf(item));});
+ return item;
+}
+function editLabel(idx){
+ const item=locationLabels[idx];if(!item)return;
+ labelEdit=idx;labelPosition=item.lngLat;
+ studio('labelText').value=item.text;studio('labelColor').value=item.color;studio('labelSize').value=item.size;
+ studio('labelAlways').checked=item.always;studio('labelFrom').value=item.from;studio('labelTo').value=item.to;
+ studio('labelTimes').style.display=item.always?'none':'block';
+ status.textContent='Yazı düzenleniyor: '+item.text;
+}
+function showLabelList(){
+ const holder=studio('labelList');holder.replaceChildren();
+ if(!locationLabels.length){holder.textContent='Henüz yazı eklenmedi.';return;}
+ locationLabels.forEach((item,i)=>{
+ const row=document.createElement('div');row.style.cssText='display:flex;gap:5px;align-items:center;margin-top:5px';
+ const edit=document.createElement('button');edit.type='button';edit.textContent=item.text;edit.style.cssText='flex:1;overflow:hidden;text-overflow:ellipsis;text-align:left;font-size:11px';edit.onclick=()=>editLabel(i);
+ const remove=document.createElement('button');remove.type='button';remove.textContent='Sil';remove.style.fontSize='11px';remove.onclick=()=>{item.marker.remove();locationLabels.splice(i,1);labelEdit=-1;showLabelList();saveLocationLabels();};
+ row.append(edit,remove);holder.appendChild(row);
+ });
+}
+studio('pickLabel').onclick=()=>{labelPick=true;labelEdit=-1;studio('pickLabel').textContent='Haritada bir yere tıkla…';status.textContent='Yazının sabitleneceği konumu haritadan seç.';};
+studio('labelAlways').onchange=()=>{studio('labelTimes').style.display=studio('labelAlways').checked?'none':'block';};
+map.on('click',e=>{if(!labelPick)return;labelPick=false;labelPosition=[e.lngLat.lng,e.lngLat.lat];studio('pickLabel').textContent='📌 Konumu Haritadan Seç';status.textContent='Yazı konumu belirlendi. Metni yazıp kaydet.';});
+studio('saveLabel').onclick=()=>{
+ const textValue=studio('labelText').value.trim();
+ if(!labelPosition||!textValue){status.textContent='Önce haritada konum seçip yazı girin.';return;}
+ const from=Number(studio('labelFrom').value),to=Number(studio('labelTo').value);
+ if(!studio('labelAlways').checked && (from>to||from<0)){status.textContent='Geçerli görünme saniyeleri girin.';return;}
+ if(labelEdit>=0&&locationLabels[labelEdit]){locationLabels[labelEdit].marker.remove();locationLabels.splice(labelEdit,1);}
+ const item={lngLat:labelPosition,text:textValue,color:studio('labelColor').value,size:Number(studio('labelSize').value),always:studio('labelAlways').checked,from,to};
+ locationLabels.push(buildLabel(item));saveLocationLabels();showLabelList();updateLabelVisibility(Number(cameraTime.value));
+ labelEdit=-1;labelPosition=null;studio('labelText').value='';status.textContent='Konum yazısı kaydedildi.';
+};
+try{const existing=JSON.parse(localStorage.getItem(labelStore)||'[]');if(Array.isArray(existing))existing.filter(v=>Array.isArray(v.lngLat)&&v.lngLat.length===2&&v.lngLat.every(Number.isFinite)&&typeof v.text==='string').forEach(v=>locationLabels.push(buildLabel(v)));}catch(e){}
+showLabelList();
+const manualKeys=[];
+const cameraStorageKey="rotavido-manual-camera-v11";
+const cameraTime=studio('cameraTime');
+function manualDuration(){return Number(studio('videoDuration').value);}
+function updateTimeLabel(){studio('timeLabel').textContent=Number(cameraTime.value).toFixed(1)+' sn';}
+function syncCameraInputs(){
+ studio('manualZoom').value=map.getZoom();
+ studio('manualBearing').value=map.getBearing();
+ studio('manualPitch').value=map.getPitch();
+ studio('zoomLabel').textContent=map.getZoom().toFixed(1);
+ studio('bearingLabel').textContent=Math.round(map.getBearing())+'°';
+ studio('pitchLabel').textContent=Math.round(map.getPitch())+'°';
+}
+function persistKeys(){try{localStorage.setItem(cameraStorageKey,JSON.stringify({duration:manualDuration(),keys:manualKeys}));}catch(e){console.warn('Kamera kaydı saklanamadı',e);}}
+function showKeys(){
+ const strip=studio('keyStrip');strip.replaceChildren();
+ manualKeys.forEach(k=>{const tick=document.createElement('button');tick.type='button';tick.title=k.sec.toFixed(1)+' sn';tick.style.cssText='position:absolute;left:'+Math.min(97,Math.max(0,k.sec/manualDuration()*100))+'%;top:1px;width:9px;height:16px;background:#34dfbc;border:0;border-radius:4px;padding:0';tick.onclick=()=>{cameraTime.value=k.sec;cameraTime.dispatchEvent(new Event('input'));};strip.appendChild(tick);});
+ const list=studio('keyList');list.replaceChildren();
+ if(!manualKeys.length){list.textContent='Henüz kamera karesi yok.';return;}
+ manualKeys.forEach((key,idx)=>{
+  const row=document.createElement('div');row.className='keyrow';
+  const select=document.createElement('button');select.type='button';
+  select.textContent=key.sec.toFixed(1)+' sn | Zoom '+key.zoom.toFixed(1)+' | Yön '+Math.round(key.bearing)+'°';
+  select.onclick=()=>{cameraTime.value=key.sec;updateTimeLabel();map.jumpTo({center:key.center,zoom:key.zoom,bearing:key.bearing,pitch:key.pitch});syncCameraInputs();};
+  const del=document.createElement('button');del.type='button';del.textContent='Sil';del.title='Bu anahtar kareyi sil';
+  del.onclick=()=>{rememberCamera();manualKeys.splice(idx,1);if(!manualKeys.length)studio('manualEnabled').checked=false;showKeys();persistKeys();};
+  row.append(select,del);list.appendChild(row);
+ });
+}
+try{
+ const saved=JSON.parse(localStorage.getItem(cameraStorageKey)||'null');
+ if(saved && Array.isArray(saved.keys)){
+  saved.keys.filter(k=>Number.isFinite(k.sec)&&Array.isArray(k.center)&&k.center.length===2&&k.center.every(Number.isFinite)&&Number.isFinite(k.zoom)&&Number.isFinite(k.bearing)&&Number.isFinite(k.pitch)).forEach(k=>manualKeys.push(k));
+  manualKeys.sort((a,b)=>a.sec-b.sec);
+  if(manualKeys.length)studio('manualEnabled').checked=true;
+ }
+}catch(e){console.warn('Kaydedilmiş kamera kareleri okunamadı',e);}
+showKeys();
+studio('videoDuration').addEventListener('change',()=>{cameraTime.max=manualDuration();cameraTime.value=Math.min(Number(cameraTime.value),manualDuration());updateTimeLabel();showKeys();});
+cameraTime.addEventListener('input',()=>{updateLabelVisibility(Number(cameraTime.value));updateTimeLabel();const sec=Number(cameraTime.value);timelineRouteAt(sec);const k=cameraAt(sec);if(k){map.jumpTo(k);syncCameraInputs();}});
+for(const [id,prop,caption] of [['manualZoom','zoom','zoomLabel'],['manualBearing','bearing','bearingLabel'],['manualPitch','pitch','pitchLabel']]){
+ studio(id).addEventListener('input',()=>{
+  const v=Number(studio(id).value);
+  const opts={};opts[prop]=v;map.jumpTo(opts);
+  studio(caption).textContent=(prop==='zoom'?v.toFixed(1):Math.round(v))+(prop==='zoom'?'':'°');
+ });
+}
+map.on('moveend',()=>{if(!animFrame)syncCameraInputs();});
+studio('saveKey').onclick=()=>{
+ const sec=Number(cameraTime.value),center=map.getCenter();
+ const k={sec,center:[center.lng,center.lat],zoom:map.getZoom(),bearing:map.getBearing(),pitch:map.getPitch()};
+ rememberCamera();
+ const idx=manualKeys.findIndex(v=>Math.abs(v.sec-sec)<.06);
+ if(idx>=0)manualKeys.splice(idx,1);
+ manualKeys.push(k);manualKeys.sort((a,b)=>a.sec-b.sec);
+ studio('manualEnabled').checked=true;showKeys();persistKeys();
+ status.textContent='Kamera karesi '+sec.toFixed(1)+' saniyeye kaydedildi.';
+};
+studio('deleteKeys').onclick=()=>{rememberCamera();manualKeys.length=0;studio('manualEnabled').checked=false;showKeys();persistKeys();status.textContent='Manuel kamera kareleri temizlendi.';};
+function cameraAt(sec){
+ if(!manualKeys.length)return null;
+ if(sec<=manualKeys[0].sec)return manualKeys[0];
+ if(sec>=manualKeys[manualKeys.length-1].sec)return manualKeys[manualKeys.length-1];
+ let j=1;while(j<manualKeys.length&&manualKeys[j].sec<sec)j++;
+ const a=manualKeys[j-1],b=manualKeys[j],p=manualKeys[Math.max(0,j-2)],n=manualKeys[Math.min(manualKeys.length-1,j+1)];
+ const span=Math.max(.001,b.sec-a.sec),t=Math.max(0,Math.min(1,(sec-a.sec)/span));
+ const h00=2*t*t*t-3*t*t+1,h10=t*t*t-2*t*t+t,h01=-2*t*t*t+3*t*t,h11=t*t*t-t*t;
+ // Cubic Hermite with shared velocity tangents: no stop at intermediate keyframes.
+ const interpolate=(v0,v1,vprev,vnext)=>{
+  const m0=(v1-vprev)/Math.max(.001,b.sec-p.sec)*span;
+  const m1=(vnext-v0)/Math.max(.001,n.sec-a.sec)*span;
+  return h00*v0+h10*m0+h01*v1+h11*m1;
+ };
+ const longDelta=(x,y)=>((y-x+540)%360)-180;
+ const lngBase=a.center[0],lngNext=lngBase+longDelta(lngBase,b.center[0]);
+ const lngPrev=lngBase-longDelta(p.center[0],lngBase),lngAfter=lngNext+longDelta(b.center[0],n.center[0]);
+ const bearingB=a.bearing+longDelta(a.bearing,b.bearing);
+ const bearingP=a.bearing-longDelta(p.bearing,a.bearing),bearingN=bearingB+longDelta(b.bearing,n.bearing);
+ const zoom=Math.max(1,Math.min(21,interpolate(a.zoom,b.zoom,p.zoom,n.zoom)));
+ const pitch=Math.max(0,Math.min(75,interpolate(a.pitch,b.pitch,p.pitch,n.pitch)));
+ return {center:[interpolate(lngBase,lngNext,lngPrev,lngAfter),Math.max(-85,Math.min(85,interpolate(a.center[1],b.center[1],p.center[1],n.center[1])))],zoom,pitch,bearing:interpolate(a.bearing,bearingB,bearingP,bearingN)};
+}
+studio('transitionSoftness').addEventListener('input',()=>{studio('smoothLabel').textContent=studio('transitionSoftness').value+'%';});
+studio('previewKeys').onclick=()=>{
+ if(manualKeys.length<2){status.textContent='Kamera önizlemesi için en az iki kare kaydet.';return;}
+ stopAnimation();
+ let start=performance.now(),last=0;
+ studio('previewKeys').disabled=true;
+ const seconds=manualDuration();
+ function preview(now){
+  if(now-last<50){animFrame=requestAnimationFrame(preview);return;}last=now;
+  const sec=Math.min(seconds,(now-start)/1000);
+  cameraTime.value=sec;updateLabelVisibility(sec);updateTimeLabel();timelineRouteAt(sec);
+  const camera=cameraAt(sec);
+  if(camera)map.jumpTo(camera);
+  if(sec<seconds)animFrame=requestAnimationFrame(preview);
+  else{animFrame=null;playbackState=null;refreshPlaybackButtons();studio('previewKeys').disabled=false;status.textContent='Manuel kamera önizlemesi tamamlandı.';}
+ }
+ playbackState={paused:false,pausedAt:0,frame:preview,shiftTime:ms=>{start+=ms;last+=ms;}};
+ refreshPlaybackButtons();status.textContent='Kamera anahtar kareleri önizleniyor…';
+ animFrame=requestAnimationFrame(preview);
+};
+studio('colorPreset').onchange=()=>{studio('map').classList.remove('warm','contrast','cool');if(studio('colorPreset').value!=='normal')studio('map').classList.add(studio('colorPreset').value);};
+let landDrawing=false,landCoords=[];
+const landStorageKey='rotavido-emlak-v22-project';
+const landSourceName='land-boundary',landFillName='land-fill',landLineName='land-outline',landPointName='land-points';
+function ensureLandLayers(){
+ if(!map.isStyleLoaded())return false;
+ if(!map.getSource(landSourceName))map.addSource(landSourceName,{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+ if(!map.getLayer(landFillName))map.addLayer({id:landFillName,type:'fill',source:landSourceName,filter:['==',['get','kind'],'parcel'],paint:{'fill-color':'#26d9b2','fill-opacity':.22}});
+ if(!map.getLayer('land-glow'))map.addLayer({id:'land-glow',type:'line',source:landSourceName,filter:['==',['get','kind'],'boundary'],paint:{'line-color':'#40f5ca','line-width':12,'line-opacity':0,'line-blur':5}});
+ if(!map.getLayer(landLineName))map.addLayer({id:landLineName,type:'line',source:landSourceName,filter:['==',['get','kind'],'boundary'],paint:{'line-color':'#40f5ca','line-width':4,'line-opacity':.95}});
+ if(!map.getLayer(landPointName))map.addLayer({id:landPointName,type:'circle',source:landSourceName,filter:['==',['get','kind'],'corner'],paint:{'circle-color':'#ffe38e','circle-radius':5,'circle-stroke-color':'#071626','circle-stroke-width':2}});
+ return true;
+}
+const landThemes={turquoise:['#40f5ca','#26d9b2','#ffe38e'],gold:['#ffd54a','#ffdd73','#fff3a0'],red:['#ff636b','#f85858','#ffe0e0'],green:['#63ff9a','#3fd987','#d4ffe1'],purple:['#c18aff','#a659e8','#f6dcff'],blue:['#55b8ff','#358aff','#e5f2ff'],white:['#ffffff','#dbe8f4','#ffffff']};
+let landPulseFrame=null;
+function readLandValue(id,fallback){const el=document.getElementById(id);return el&&'value'in el?el.value:fallback;}
+function applyLandColors(){
+ if(!map.getLayer(landFillName)||!map.getLayer(landLineName))return;
+ const stroke=readLandValue('landStrokeColor','#40f5ca'),effect=readLandValue('landEffect','none'),width=Number(readLandValue('landStrokeWidth',4));
+ map.setPaintProperty(landFillName,'fill-color',readLandValue('landFillColor','#26d9b2'));
+ map.setPaintProperty(landFillName,'fill-opacity',Number(readLandValue('landFillOpacity',22))/100);
+ map.setPaintProperty(landLineName,'line-color',stroke);
+ map.setPaintProperty(landLineName,'line-width',width);
+ map.setPaintProperty(landLineName,'line-dasharray',effect==='dash'?[3,2]:[1,0]);
+ if(map.getLayer(landPointName)){
+  map.setPaintProperty(landPointName,'circle-color',readLandValue('landPointColor','#ffe38e'));
+  map.setPaintProperty(landPointName,'circle-radius',Number(readLandValue('landPointRadius',5)));
+ }
+ if(map.getLayer('land-glow')){
+  map.setPaintProperty('land-glow','line-color',effect==='neon'?'#ffffff':stroke);
+  map.setPaintProperty('land-glow','line-width',width+(effect==='neon'?12:8));
+  map.setPaintProperty('land-glow','line-opacity',effect==='glow'?.48:effect==='neon'?.56:effect==='pulse'?.25:0);
+ }
+ if(landPulseFrame){cancelAnimationFrame(landPulseFrame);landPulseFrame=null;}
+ if(effect==='pulse'){
+  const pulse=now=>{if(readLandValue('landEffect','none')!=='pulse'||!map.getLayer('land-glow'))return;
+   const p=(Math.sin(now/380)+1)/2;
+   map.setPaintProperty('land-glow','line-opacity',.12+.50*p);
+   map.setPaintProperty('land-glow','line-width',width+5+8*p);
+   landPulseFrame=requestAnimationFrame(pulse);
+  };landPulseFrame=requestAnimationFrame(pulse);
+ }
+}
+studio('landPreset').onchange=()=>{
+ const p=landThemes[studio('landPreset').value];if(!p)return;
+ studio('landStrokeColor').value=p[0];studio('landFillColor').value=p[1];studio('landPointColor').value=p[2];applyLandColors();
+};
+for(const id of ['landStrokeColor','landFillColor','landFillOpacity','landStrokeWidth','landPointColor','landPointRadius','landEffect'])studio(id).addEventListener('input',()=>{
+ if(['landStrokeColor','landFillColor','landPointColor'].includes(id))studio('landPreset').value='custom';
+ applyLandColors();
+});
+let landRenderPending=false;
+function paintLand(){
+ if(!landCoords.length && !map.getSource(landSourceName))return;
+ if(!map.isStyleLoaded()){
+  landRenderPending=true;
+  return;
+ }
+ landRenderPending=false;
+ if(!ensureLandLayers()){landRenderPending=true;return;}
+ const features=[];
+ if(landCoords.length>=3){
+  features.push({type:'Feature',properties:{kind:'parcel'},geometry:{type:'Polygon',coordinates:[[...landCoords,landCoords[0]]]}});
+  // Explicit closed line works even when polygon line styling or filters fail.
+  features.push({type:'Feature',properties:{kind:'boundary'},geometry:{type:'LineString',coordinates:[...landCoords,landCoords[0]]}});
+ }else if(landCoords.length>=2)features.push({type:'Feature',properties:{kind:'boundary'},geometry:{type:'LineString',coordinates:landCoords}});
+ for(const c of landCoords)features.push({type:'Feature',properties:{kind:'corner'},geometry:{type:'Point',coordinates:c}});
+ map.getSource(landSourceName).setData({type:'FeatureCollection',features});
+ applyLandColors();
+ studio('landHint').textContent=landCoords.length?landCoords.length+' köşe yüklendi / çizildi.':'Henüz bir alan çizilmedi.';
+ updateLandStats();
+}
+map.on('load',()=>{if(landRenderPending||landCoords.length)paintLand();});
+map.on('idle',()=>{if(landRenderPending&&map.isStyleLoaded())paintLand();});
+function cadastrePolygon(geo){
+ const features=geo?.type==='FeatureCollection'?geo.features:geo?.type==='Feature'?[geo]:[{type:'Feature',geometry:geo}];
+ if(!Array.isArray(features)||features.length!==1)throw Error('Tek parsele ait GeoJSON seçmelisin.');
+ const geom=features[0]?.geometry;
+ if(!geom||!['Polygon','MultiPolygon'].includes(geom.type))throw Error('Dosyada Polygon/MultiPolygon sınır bulunamadı.');
+ const rings=geom.type==='Polygon'?[geom.coordinates[0]]:geom.coordinates.map(poly=>poly[0]);
+ if(!rings.every(r=>Array.isArray(r)&&r.length>=4))throw Error('Sınır koordinatları eksik.');
+ // MultiPolygon: choose largest outer ring for editable display, do not silently merge disjoint pieces.
+ if(rings.length!==1)throw Error('Çok parçalı parsel desteklenmiyor; yanlış sınır göstermemek için aktarım durduruldu.');
+ const ring=rings[0],coords=ring.map(p=>[Number(p[0]),Number(p[1])]);
+ if(coords.length>5000||!coords.every(p=>p.length===2&&Number.isFinite(p[0])&&Number.isFinite(p[1])&&p[0]>=25&&p[0]<=46&&p[1]>=35&&p[1]<=43))throw Error('Koordinatlar geçersiz veya WGS84 (EPSG:4326) değil.');
+ if(coords.length>3 && Math.abs(coords[0][0]-coords.at(-1)[0])<1e-8&&Math.abs(coords[0][1]-coords.at(-1)[1])<1e-8)coords.pop();
+ if(coords.length<3)throw Error('En az 3 farklı köşe gerekli.');
+ return coords;
+}
+async function loadOCRLibrary(){
+ if(window.Tesseract)return window.Tesseract;
+ return new Promise((resolve,reject)=>{
+  const tag=document.createElement('script');tag.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+  tag.onload=()=>window.Tesseract?resolve(window.Tesseract):reject(Error('Görsel okuma kütüphanesi yüklenemedi'));
+  tag.onerror=()=>reject(Error('Görsel okuma kütüphanesi indirilemedi'));document.head.appendChild(tag);
+ });
+}
+function parseCadastreImageText(raw){
+ const lines=raw.split(/\n/).map(x=>x.trim()).filter(Boolean),flat=lines.join(' ');
+ const find=(names)=>{
+  for(let i=0;i<lines.length;i++){
+   for(const name of names){const re=new RegExp('^'+name+'\\s*[:：-]?\\s*(.*)$','i'),m=lines[i].match(re);if(m){let val=(m[1]||'').trim();if(!val)val=lines[i+1]||'';if(val)return val.trim();}}
+  }
+  return '';
+ };
+ const findNumber=names=>{const v=find(names);return (v.match(/\d+/)||[])[0]||'';};
+ return {province:find(['İl','Il']),county:find(['İlçe','Ilce']),village:find(['Mahalle\\s*\\/?\\s*Köy','Mahalle\\s*\\/?\\s*Koy']),block:findNumber(['Ada']),parcel:findNumber(['Parsel']),area:find(['Tapu\\s*Alanı','Tapu\\s*Alani'])};
+}
+studio('cadReadScreenshot').onclick=async()=>{
+ const file=studio('cadScreenshot').files?.[0],output=studio('cadOcrStatus');
+ if(!file){output.textContent='Önce bilgi ekranı görselini seçin.';return;}
+ if(file.size>8*1024*1024){output.textContent='8 MB altında bir görsel seçin.';return;}
+ studio('cadReadScreenshot').disabled=true;output.textContent='Görsel okunuyor…';
+ try{
+  const OCR=await loadOCRLibrary(),worker=await OCR.createWorker('tur+eng');
+  let result;
+  try{result=await worker.recognize(file);}finally{await worker.terminate();}
+  const data=parseCadastreImageText(result.data.text);
+  for(const [k,id] of [['province','cadProvince'],['county','cadCounty'],['village','cadVillage'],['block','cadBlock'],['parcel','cadParcel']])if(data[k])studio(id).value=data[k];
+  if(data.area){
+   const area=Number(data.area.replace(/\./g,'').replace(',','.').match(/[\d.]+/)?.[0]);
+   if(Number.isFinite(area)&&area>0)studio('landArea').value=area;
+  }
+  if(data.block&&data.parcel){studio('landParcel').value='Ada '+data.block+' / Parsel '+data.parcel;}
+  studio('landDistrict').value=[data.village,data.county,data.province].filter(Boolean).join(' / ');
+  output.textContent='Bilgiler OCR ile dolduruldu. Mutlaka kontrol edin. Görsel sınır koordinatı içermediği için parsel çizilmedi; doğru sınır için GeoJSON yükleyin.';
+ }catch(e){output.textContent='Görsel okunamadı: '+e.message+' • Bilgileri elle girebilirsiniz.';}
+ finally{studio('cadReadScreenshot').disabled=false;}
+};
+studio('cadLookup').onclick=()=>{
+ const p=['cadProvince','cadCounty','cadVillage','cadBlock','cadParcel'].map(id=>studio(id).value.trim());
+ if(p.some(v=>!v)){studio('cadStatus').textContent='İl, ilçe, mahalle/köy, ada ve parsel bilgilerini doldur.';return;}
+ studio('landParcel').value='Ada '+p[3]+' / Parsel '+p[4];
+ studio('landDistrict').value=[p[2],p[1],p[0]].join(' / ');
+ studio('cadStatus').textContent='TKGM ekranında aynı bilgileri girerek sorgula ve parselin GeoJSON çıktısını indir.';
+ window.open('https://parselsorguv2.tkgm.gov.tr/','_blank','noopener,noreferrer');
+};
+studio('cadImport').onclick=async()=>{
+ const file=studio('cadFile').files?.[0];if(!file){studio('cadStatus').textContent='Önce GeoJSON dosyası seç.';return;}
+ if(file.size>2*1024*1024){studio('cadStatus').textContent='Dosya 2 MB sınırını aşıyor.';return;}
+ try{
+  const geo=JSON.parse(await file.text()),coords=cadastrePolygon(geo);
+  // Import never overwrites existing geometry before the file has passed validation.
+  rememberLand();landCoords=coords;landDrawing=false;studio('finishLand').disabled=true;
+  // Rendering, camera framing and optional cards are independent. A presentation
+  // error must never discard an otherwise valid parcel geometry.
+  let warning='';
+  try{paintLand();}catch(drawErr){warning=' Sınır görünümü: '+drawErr.message;console.error('Parsel çizim hatası',drawErr);}
+  try{studio('focusLand').click();}catch(focusErr){warning+=' Kamera: '+focusErr.message;console.error('Parsel odak hatası',focusErr);}
+  try{updateLandCard(Number(studio('proTimeline').value));}catch(cardErr){console.warn('Opsiyonel ilan kartı görüntülenemedi',cardErr);}
+  studio('cadStatus').textContent=coords.length+' köşe yüklendi. Sınır çizimi '+(landRenderPending?'harita hazır olunca tamamlanacak':'haritaya aktarıldı')+'.'+(warning?' Görünüm uyarısı:'+warning:'')+' Kaynak sınırı TKGM ile kontrol edin.';
+  status.textContent='Parsel geometrisi yüklendi.';
+ }catch(e){console.error('Parsel GeoJSON ayrıştırma hatası',e);studio('cadStatus').textContent='Parsel verisi okunamadı: '+e.message;}
+};
+function geographicDistance(a,b){
+ const R=6371008.8,rad=Math.PI/180,dl=(b[1]-a[1])*rad,dlo=(b[0]-a[0])*rad;
+ const z=Math.sin(dl/2)**2+Math.cos(a[1]*rad)*Math.cos(b[1]*rad)*Math.sin(dlo/2)**2;
+ return 2*R*Math.atan2(Math.sqrt(z),Math.sqrt(1-z));
+}
+function landMetrics(){
+ if(landCoords.length<3)return {area:0,perimeter:0};
+ const avgLat=landCoords.reduce((x,p)=>x+p[1],0)/landCoords.length*Math.PI/180,R=6371008.8,rad=Math.PI/180;
+ const coords=landCoords.map(c=>[R*c[0]*rad*Math.cos(avgLat),R*c[1]*rad]);
+ let twice=0,perimeter=0;
+ for(let i=0;i<coords.length;i++){const j=(i+1)%coords.length;twice+=coords[i][0]*coords[j][1]-coords[j][0]*coords[i][1];perimeter+=geographicDistance(landCoords[i],landCoords[j]);}
+ return {area:Math.abs(twice)/2,perimeter};
+}
+function updateLandStats(){
+ const el=studio('landStats'),m=landMetrics();
+ el.textContent=landCoords.length>=3?'Yaklaşık çizim alanı: '+Math.round(m.area).toLocaleString('tr-TR')+' m² • Çevre: '+Math.round(m.perimeter).toLocaleString('tr-TR')+' m — yalnızca yaklaşık hesap':'En az 3 köşe seçildiğinde yaklaşık alan ve çevre gösterilir.';
+}
+studio('undoLand').onclick=()=>restoreLandUndo();
+studio('focusLand').onclick=()=>{if(!landCoords.length)return;const bounds=landCoords.reduce((b,c)=>b.extend(c),new maplibregl.LngLatBounds(landCoords[0],landCoords[0]));map.fitBounds(bounds,{padding:90,maxZoom:18,duration:750});};
+const landFieldIds=['landTitle','landType','landArea','landPrice','landDistrict','landParcel','landAgent','landFrom','landTo','landCardEnabled'];
+function landProject(){const fields={};landFieldIds.forEach(id=>fields[id]=studio(id).type==='checkbox'?studio(id).checked:studio(id).value);return {format:'ROTAVIDO-EMLAK-V22',version:1,fields,coordinates:landCoords};}
+function applyLandProject(p){
+ if(p?.format!=='ROTAVIDO-EMLAK-V22'||!Array.isArray(p.coordinates)||p.coordinates.length>300||!p.coordinates.every(c=>Array.isArray(c)&&c.length===2&&Number.isFinite(c[0])&&Number.isFinite(c[1])&&Math.abs(c[0])<=180&&Math.abs(c[1])<=90))throw Error('Geçersiz proje dosyası');
+ const fields=p.fields||{};landFieldIds.forEach(id=>{if(Object.prototype.hasOwnProperty.call(fields,id)){const el=studio(id);if(el.type==='checkbox')el.checked=!!fields[id];else el.value=String(fields[id]).slice(0,200);}});
+ landCoords=p.coordinates.map(c=>[c[0],c[1]]);landDrawing=false;studio('finishLand').disabled=true;paintLand();updateLandCard(Number(studio('proTimeline').value));
+}
+studio('saveProject').onclick=()=>{
+ const content=JSON.stringify(landProject(),null,2),url=URL.createObjectURL(new Blob([content],{type:'application/json'}));
+ const a=document.createElement('a');a.href=url;a.download='rotavido-emlak-proje.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status.textContent='Emlak proje bilgileri JSON dosyasına kaydedildi.';
+};
+studio('loadProject').onclick=()=>studio('projectFile').click();
+studio('projectFile').onchange=async()=>{
+ const file=studio('projectFile').files[0];if(!file)return;
+ if(file.size>500000){status.textContent='Proje dosyası çok büyük.';return;}
+ try{applyLandProject(JSON.parse(await file.text()));status.textContent='Emlak proje bilgileri açıldı.';}catch(e){status.textContent='Proje açılamadı: '+e.message;}
+ studio('projectFile').value='';
+};
+const undoStack=[];const cameraUndoStack=[];
+function rememberCamera(){cameraUndoStack.push(manualKeys.map(k=>({...k,center:k.center.slice()})));if(cameraUndoStack.length>50)cameraUndoStack.shift();}
+function restoreCameraUndo(){if(!cameraUndoStack.length)return false;manualKeys.splice(0,manualKeys.length,...cameraUndoStack.pop());studio('manualEnabled').checked=manualKeys.length>0;showKeys();persistKeys();status.textContent='Kamera kareleri geri alındı.';return true;}
+function rememberLand(){undoStack.push(landCoords.map(c=>c.slice()));if(undoStack.length>60)undoStack.shift();}
+function restoreLandUndo(){if(!undoStack.length){status.textContent='Geri alınacak arsa çizimi yok.';return;}landCoords=undoStack.pop();paintLand();status.textContent='Son arsa çizim işlemi geri alındı.';}
+document.addEventListener('keydown',event=>{
+ if(!(event.ctrlKey||event.metaKey)||event.key.toLowerCase()!=='z'||event.shiftKey)return;
+ const el=event.target;
+ if(el?.matches?.('input,textarea,[contenteditable="true"]'))return;
+ if(undoStack.length){event.preventDefault();restoreLandUndo();}else if(cameraUndoStack.length){event.preventDefault();restoreCameraUndo();}
+});
+studio('drawLand').onclick=()=>{landDrawing=true;studio('finishLand').disabled=false;status.textContent='Alan çizimi açık: haritada köşe noktalarına sırayla tıkla.';};
+studio('finishLand').onclick=()=>{if(landCoords.length<3){status.textContent='En az 3 köşe noktası seçmelisin.';return;}landDrawing=false;studio('finishLand').disabled=true;paintLand();status.textContent='Tanıtım alanı çizildi. Bu resmî parsel sınırı değildir.';};
+studio('clearLand').onclick=()=>{rememberLand();landDrawing=false;landCoords=[];studio('finishLand').disabled=true;paintLand();};
+map.on('click',e=>{if(!landDrawing)return;rememberLand();landCoords.push([e.lngLat.lng,e.lngLat.lat]);paintLand();});
+function updateLandCard(sec){
+ const visible=studio('landCardEnabled').checked && sec>=Number(studio('landFrom').value)&&sec<=Number(studio('landTo').value);
+ studio('landCard').style.display=visible?'block':'none';
+ if(!visible)return;
+ const name=studio('landTitle').value.trim()||studio('landType').value;
+ studio('landCardTitle').textContent=name;
+ const area=Number(studio('landArea').value),price=Number(studio('landPrice').value);
+ studio('landCardInfo').textContent=[area>0?area.toLocaleString('tr-TR')+' m²':'',price>0?price.toLocaleString('tr-TR')+' TL':''].filter(Boolean).join('  •  ')||studio('landType').value;
+ studio('landCardDistrict').textContent=[studio('landDistrict').value.trim(),studio('landParcel').value.trim()].filter(Boolean).join(' · ');
+ studio('landCardAgent').textContent=studio('landAgent').value.trim();
+}
+studio('landCardUpdate').onclick=()=>{updateLandCard(Number(studio('proTimeline').value));status.textContent='Emlak tanıtım kartı güncellendi.';};
+map.on('styledata',()=>{if(map.isStyleLoaded()&&landCoords.length&&!map.getLayer(landLineName))paintLand();});
+let imagePick=false,imagePosition=null;
+const imageOverlays=[];
+studio('pickImage').onclick=()=>{imagePick=true;labelPick=false;status.textContent='Resim için haritaya tıkla.';};
+map.on('click',e=>{if(!imagePick)return;imagePick=false;imagePosition=[e.lngLat.lng,e.lngLat.lat];status.textContent='Resim konumu seçildi. Kaydet butonuna bas.';});
+function imageVisibility(sec){imageOverlays.forEach(v=>{const el=v.marker.getElement(),active=sec>=v.from&&sec<=v.to;el.style.display=active?'block':'none';el.style.opacity=active?String(Math.min(1,Math.max(0,(sec-v.from)/.6),Math.max(0,(v.to-sec)/.6))):'0';});}
+function redrawImageList(){const holder=studio('imageList');holder.replaceChildren();imageOverlays.forEach((item,i)=>{const row=document.createElement('div');row.style.marginTop='6px';const b=document.createElement('button');b.textContent='Resim '+(i+1)+' • Sil';b.onclick=()=>{item.marker.remove();imageOverlays.splice(i,1);redrawImageList();};row.appendChild(b);holder.appendChild(row);});}
+studio('saveImage').onclick=async()=>{
+ const file=studio('imageFile').files[0];
+ if(!file||!imagePosition){status.textContent='Resim dosyasını ve harita konumunu seç.';return;}
+ if(file.size>2*1024*1024){status.textContent='Resim en fazla 2 MB olabilir.';return;}
+ const from=Number(studio('imageFrom').value),to=Number(studio('imageTo').value);
+ if(from>to||!Number.isFinite(from)||!Number.isFinite(to)){status.textContent='Görünme zamanlarını kontrol et.';return;}
+ const url=URL.createObjectURL(file),el=document.createElement('img');el.src=url;el.alt='Konum görseli';el.style.cssText='width:'+Math.min(300,Math.max(24,Number(studio('imageWidth').value)||100))+'px;height:auto;max-height:180px;object-fit:contain;filter:drop-shadow(0 3px 8px #000);pointer-events:none';
+ const marker=new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat(imagePosition).addTo(map);
+ imageOverlays.push({marker,from,to,url});imagePosition=null;imageVisibility(Number(cameraTime.value));redrawImageList();status.textContent='Sabit resim eklendi.';
+};
+const transport=studio('proTransport'),timeline=studio('proTimeline');
+let clockTime=0,clockPlaying=false,clockSpeed=1,clockDirection=1,clockLast=0,clockFrame=null;
+function durationSeconds(){return Number(studio('videoDuration').value);}
+let vehicleMarker=null;
+const markerIcons={car:'🚗',walk:'🚶',arrow:'➤'};
+function updateVehicle(){
+ const t=studio('vehicleType').value;
+ if(t==='none'||!timelineMarker){if(vehicleMarker){vehicleMarker.remove();vehicleMarker=null;}return;}
+ if(!vehicleMarker){const el=document.createElement('div');el.style.cssText='font-size:28px;line-height:1;filter:drop-shadow(0 2px 4px #000);pointer-events:none';vehicleMarker=new maplibregl.Marker({element:el,anchor:'center'}).setLngLat(timelineMarker.getLngLat()).addTo(map);}
+ vehicleMarker.getElement().textContent=markerIcons[t];vehicleMarker.setLngLat(timelineMarker.getLngLat());
+}
+studio('vehicleType').addEventListener('change',updateVehicle);
+const voiceAudio=new Audio();voiceAudio.preload='metadata';let voiceUrl=null;
+studio('voiceFile').onchange=()=>{if(voiceUrl)URL.revokeObjectURL(voiceUrl);const file=studio('voiceFile').files?.[0];voiceAudio.pause();if(!file)return;voiceUrl=URL.createObjectURL(file);voiceAudio.src=voiceUrl;voiceAudio.volume=Number(studio('voiceVolume').value)/100;status.textContent='Ses dosyası yüklendi. Oynatınca videoya eşlik edecek.';};
+studio('voiceVolume').oninput=()=>voiceAudio.volume=Number(studio('voiceVolume').value)/100;
+studio('voicePreview').onclick=()=>{if(!voiceAudio.src)return;voiceAudio.currentTime=Math.min(clockTime,voiceAudio.duration||clockTime);voiceAudio.play().catch(()=>{status.textContent='Ses oynatma tarayıcı tarafından engellendi.';});};
+studio('voiceMute').onclick=()=>{voiceAudio.pause();};
+function syncVoice(){if(!voiceAudio.src)return;const t=Math.min(clockTime,Number.isFinite(voiceAudio.duration)?voiceAudio.duration:clockTime);if(Math.abs(voiceAudio.currentTime-t)>.35)try{voiceAudio.currentTime=t;}catch(e){}}
+function makeEditorTabs(){
+ const root=studio('studio'),heading=root.querySelector(':scope > h2');
+ const configs=[
+ {key:'route',title:'🛣 Rota',subs:[['Genel Ayarlar',null],['Çizgi ve Simgeler','newRouteOptions'],['Hız / Hareket','motionPanel'],['Yol Yazıları','roadTextPanel']]},
+ {key:'camera',title:'🎥 Kamera',subs:[['Anahtar Kareler','manualPanel'],['Görünüm','visualPanel']]},
+ {key:'media',title:'🖼 Medya',subs:[['Yazılar','labelPanel'],['Görseller','imagePanel'],['Seslendirme','audioPanel']]},
+ {key:'estate',title:'🏡 Emlak',subs:[['Parsel Yükleme','cadastrePanel'],['Arsa / İlan','landPanel']]},
+ ];
+ const allIds=configs.flatMap(c=>c.subs.map(t=>t[1]).filter(Boolean));
+ const detached={};for(const id of allIds)if(studio(id))detached[id]=studio(id);
+ for(const id of allIds)if(id!=='manualPanel'&&detached[id])detached[id].remove();
+ if(detached.manualPanel)detached.manualPanel.remove();
+ const ungrouped=document.createElement('section');ungrouped.className='sub-pane';
+ for(const n of [...root.childNodes])if(n!==heading&&n!==studio('toggleEditor'))ungrouped.appendChild(n);
+ const mainNav=document.createElement('nav');mainNav.className='editor-main';
+ const subNav=document.createElement('div');subNav.id='editorSub';
+ const nav=document.createElement('aside');nav.id='editorNav';
+ const mainTitle=document.createElement('strong');mainTitle.textContent='Düzenleme Araçları';mainTitle.style.cssText='display:block;margin-bottom:9px';
+ nav.append(mainTitle,mainNav,subNav);root.insertBefore(nav,heading.nextSibling);
+ const pages={};const mainButtons={};
+ for(const conf of configs){
+  const page=document.createElement('section');page.className='studio-pane';root.appendChild(page);pages[conf.key]=page;
+  for(const [title,id] of conf.subs){const part=id?detached[id]:ungrouped;if(!part)continue;part.classList.add('sub-pane');page.appendChild(part);}
+  const btn=document.createElement('button');btn.type='button';btn.textContent=conf.title;mainNav.appendChild(btn);mainButtons[conf.key]=btn;
+  btn.onclick=()=>{
+   Object.entries(pages).forEach(([k,p])=>{p.classList.toggle('active',k===conf.key);mainButtons[k].classList.toggle('selected',k===conf.key);});
+   subNav.replaceChildren();
+   const items=conf.subs.filter(([title,id])=>id?!!detached[id]:true);
+   items.forEach(([title,id],i)=>{
+    const target=id?detached[id]:ungrouped;
+    const b=document.createElement('button');b.type='button';b.textContent='› '+title;
+    b.onclick=()=>{for(const p of page.querySelectorAll('.sub-pane'))p.classList.toggle('active',p===target);for(const n of subNav.children)n.classList.remove('selected');b.classList.add('selected');root.scrollTop=0;};
+    subNav.appendChild(b);if(i===0)b.click();
+   });
+  };
+ }
+ mainButtons.route.click();
+}
+makeEditorTabs();
+let lastAutoCam=0;
+// Monotonic piecewise speed map: user controls how much ground each third of the video covers.
+function warpedTime(sec){
+ const total=durationSeconds(),u=Math.max(0,Math.min(1,sec/total));
+ const speeds=[Number(studio('speedFirst').value),Number(studio('speedMid').value),Number(studio('speedLast').value)];
+ const sum=speeds[0]+speeds[1]+speeds[2],scaled=u*3,i=Math.min(2,Math.floor(scaled)),part=scaled-i;
+ const completed=speeds.slice(0,i).reduce((a,v)=>a+v,0);
+ return total*(completed+part*speeds[i])/sum;
+}
+for(const [id,valId] of [['speedFirst','speedFirstVal'],['speedMid','speedMidVal'],['speedLast','speedLastVal']]){
+ studio(id).addEventListener('input',()=>{studio(valId).textContent=studio(id).value+'×';seekPro(clockTime);});
+}
+studio('resetSpeed').onclick=()=>{for(const id of ['speedFirst','speedMid','speedLast']){studio(id).value=1;studio(id).dispatchEvent(new Event('input'));}};
+const roadSource='road-text-source',roadLayer='road-text-layer';
+function ensureRoadLabel(){
+ if(!map.isStyleLoaded())return;
+ // Label source is refreshed after route geometry changes.
+ if(!map.getSource(roadSource))map.addSource(roadSource,{type:'geojson',data:{type:'Feature',properties:{name:''},geometry:{type:'LineString',coordinates:[]}}});
+ if(!map.getLayer(roadLayer))map.addLayer({id:roadLayer,type:'symbol',source:roadSource,layout:{'symbol-placement':'line','text-field':['get','name'],'text-size':Number(studio('roadTextSize').value),'symbol-spacing':Number(studio('roadTextSpacing').value),'text-rotation-alignment':'map','text-keep-upright':true,'text-max-angle':45,'text-letter-spacing':.06,'text-font':['Open Sans Regular','Arial Unicode MS Regular']},paint:{'text-color':studio('roadTextColor').value,'text-halo-color':'#071727','text-halo-width':2.5}});
+}
+function updateRoadLabel(){
+ if(!map.isStyleLoaded())return;ensureRoadLabel();
+ const source=map.getSource(roadSource);if(!source)return;
+ let coords=path;
+ if(studio('roadTextMode').value==='progress')coords=progressedRoadCoords;
+ source.setData({type:'Feature',properties:{name:studio('roadText').value.trim()},geometry:{type:'LineString',coordinates:coords.length>=2?coords:[]}});
+ for(const [p,v] of [['text-size',Number(studio('roadTextSize').value)],['symbol-spacing',Number(studio('roadTextSpacing').value)]])map.setLayoutProperty(roadLayer,p,v);
+ map.setPaintProperty(roadLayer,'text-color',studio('roadTextColor').value);
+}
+studio('applyRoadText').onclick=()=>{updateRoadLabel();status.textContent='Yol yazısı rotaya uygulandı.';};
+studio('clearRoadText').onclick=()=>{studio('roadText').value='';updateRoadLabel();};
+map.on('style.load',()=>{if(path.length>=2)updateRoadLabel();});
+function routeSeek(sec){
+ if(path.length<2)return;
+ sec=warpedTime(sec);
+ const r=Math.min(1,Math.max(0,sec/durationSeconds()));timelineRouteAt(sec);updateVehicle();if(studio('roadTextMode').value==='progress'&&studio('roadText').value.trim())updateRoadLabel();
+ if(studio('manualEnabled').checked&&manualKeys.length>=2){
+  const k=cameraAt(sec);if(k)map.jumpTo(k);
+ }else if(timelineMarker){
+  const pt=timelineMarker.getLngLat(),now=performance.now();
+  if(!clockPlaying||now-lastAutoCam>80){
+   lastAutoCam=now;
+   const effect=studio('zoomPreset').value,amount=effect==='strong'?2.3:effect==='none'?0:1.5;const zoom=14.7+amount*(r*r*(3-2*r));
+   if(clockPlaying)map.jumpTo({center:[pt.lng,pt.lat],zoom,pitch:20});
+   else map.jumpTo({center:[pt.lng,pt.lat],zoom,pitch:35});
+  }
+ }
+}
+function seekPro(sec){
+ if(sec<durationSeconds())studio('finalCard').style.display='none';
+ clockTime=Math.max(0,Math.min(durationSeconds(),sec));
+ timeline.value=clockTime;cameraTime.value=clockTime;updateTimeLabel();syncVoice();
+ routeSeek(clockTime);updateLabelVisibility(warpedTime(clockTime));imageVisibility(warpedTime(clockTime));updateLandCard(warpedTime(clockTime));
+ const mm=n=>String(Math.floor(n)).padStart(2,'0');
+ studio('playClock').textContent=mm(clockTime/60)+':'+mm(clockTime%60)+' / '+mm(durationSeconds()/60)+':'+mm(durationSeconds()%60);
+}
+function proTick(now){
+ if(!clockPlaying)return;
+ if(clockLast)seekPro(clockTime+(now-clockLast)/1000*clockSpeed*clockDirection);
+ clockLast=now;
+ if(clockTime<=0&&clockDirection<0||clockTime>=durationSeconds()&&clockDirection>0){voiceAudio.pause();clockPlaying=false;if(clockDirection>0&&studio('showFinal').checked){studio('finalName').textContent=studio('businessName').value.trim()||'Hedefe ulaştınız!';studio('finalCard').style.display='block';}return;}
+ clockFrame=requestAnimationFrame(proTick);
+}
+function startPro(direction){if(path.length<2){status.textContent='Önce Sokak Rotası Oluştur düğmesiyle rotayı hesapla.';return;}if(animFrame)cancelAnimationFrame(animFrame);animFrame=null;if(clockFrame)cancelAnimationFrame(clockFrame);clockDirection=direction;if(clockTime>=durationSeconds()&&direction>0)seekPro(0);if(clockTime<=0&&direction<0)seekPro(durationSeconds());clockPlaying=true;clockLast=0;syncVoice();if(voiceAudio.src)voiceAudio.playbackRate=clockSpeed;voiceAudio.play().catch(()=>{});clockFrame=requestAnimationFrame(proTick);}
+function pausePro(){voiceAudio.pause();map.stop();clockPlaying=false;if(clockFrame)cancelAnimationFrame(clockFrame);clockFrame=null;clockLast=0;}
+studio('toStart').onclick=()=>{pausePro();seekPro(0);};
+studio('toEnd').onclick=()=>{pausePro();seekPro(durationSeconds());};
+studio('skipBack').onclick=()=>{pausePro();seekPro(clockTime-5);};
+studio('skipForward').onclick=()=>{pausePro();seekPro(clockTime+5);};
+studio('proPlay').onclick=()=>startPro(1);
+studio('reverse').onclick=()=>startPro(-1);
+studio('proPause').onclick=pausePro;
+studio('playSpeed').onchange=()=>{clockSpeed=Number(studio('playSpeed').value);voiceAudio.playbackRate=clockSpeed;};
+timeline.oninput=()=>{pausePro();seekPro(Number(timeline.value));};
+studio('videoDuration').addEventListener('change',()=>{timeline.max=durationSeconds();seekPro(Math.min(clockTime,durationSeconds()));});
+timeline.max=durationSeconds();seekPro(0);
+playBtn.onclick=()=>{if(path.length<2){status.textContent='Önce rota oluştur.';return;}studio('finalCard').style.display='none';startPro(1);};
+studio('previewKeys').onclick=()=>{if(!manualKeys.length){status.textContent='Önce kamera anahtar karesi ekle.';return;}studio('manualEnabled').checked=true;startPro(1);};
+
+/* Browser video export: 1080p, 30fps, optional voice track. */
+let exportActive=false,exportRecorder=null,exportFrame=0,exportStopped=false;
+const renderStatus=studio('renderStatus'),renderStart=studio('renderStart'),renderCancel=studio('renderCancel'),renderProgress=studio('renderProgress');
+const renderNote=t=>{renderStatus.textContent=t;};
+function renderOverlay(ctx,el,x,y,w,h){
+ if(!el||getComputedStyle(el).display==='none')return;
+ const rect=el.getBoundingClientRect();if(!rect.width||!rect.height)return;
+ const mr=map.getContainer().getBoundingClientRect();
+ // DOM elements are drawn relative to the map, not the editing panel.
+ const px=(rect.left-mr.left)/mr.width*w,py=(rect.top-mr.top)/mr.height*h;
+ ctx.save();ctx.fillStyle='rgba(9,27,49,.88)';ctx.strokeStyle='#31dec0';ctx.lineWidth=2;
+ const cw=Math.min(w-30,Math.max(180,rect.width/mr.width*w)),ch=Math.max(50,rect.height/mr.height*h);
+ ctx.beginPath();ctx.roundRect(Math.max(10,px),Math.max(8,py),cw,ch,12);ctx.fill();ctx.stroke();
+ ctx.font='bold 31px Arial';ctx.fillStyle='#fff';ctx.fillText(el.querySelector('strong')?.textContent||'',Math.max(10,px)+20,Math.max(8,py)+38,cw-30);
+ const info=el.querySelector('span')?.textContent||'';ctx.font='21px Arial';ctx.fillText(info,Math.max(10,px)+20,Math.max(8,py)+72,cw-30);ctx.restore();
+}
+let exportAudioContext=null,exportAudioSource=null;
+async function createExportAudio(){
+ if(!studio('renderAudio').checked||!voiceAudio.src)return {track:null,cleanup:()=>{}};
+ if(!exportAudioContext){
+  exportAudioContext=new (window.AudioContext||window.webkitAudioContext)();
+  exportAudioSource=exportAudioContext.createMediaElementSource(voiceAudio);
+  exportAudioSource.connect(exportAudioContext.destination);
+ }
+ const destination=exportAudioContext.createMediaStreamDestination();
+ exportAudioSource.connect(destination);
+ await exportAudioContext.resume();
+ return {track:destination.stream.getAudioTracks()[0],cleanup:()=>{try{exportAudioSource.disconnect(destination);}catch(e){}}};
+}
+renderStart.onclick=async()=>{
+ if(exportActive)return;
+ if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream){renderNote('Bu tarayıcı video kaydını desteklemiyor. Güncel Chrome veya Edge kullanın.');return;}
+ if(!map.isStyleLoaded()){renderNote('Harita henüz hazır değil. Birkaç saniye sonra tekrar deneyin.');return;}
+ if(path.length<2&&landCoords.length<3){renderNote('Önce bir rota oluşturun veya arsa çizip parsel yükleyin.');return;}
+ let mime='';
+ for(const v of ['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm']){
+  if(MediaRecorder.isTypeSupported(v)){mime=v;break;}
+ }
+ if(!mime){renderNote('Tarayıcı MP4/WebM kayıt kodlaması sunmuyor.');return;}
+ exportActive=true;exportStopped=false;renderStart.disabled=true;renderCancel.style.display='block';renderProgress.style.display='block';renderProgress.value=0;
+ let exportCanvas,frameCtx,stream,recorder,audio=null,raf=0;
+ const ratio=document.querySelector('input[name="renderAspect"]:checked').value,quality=Number(document.querySelector('input[name="renderQuality"]:checked').value),fps=Number(document.querySelector('input[name="renderFps"]:checked').value);
+ const width=ratio==='9:16'?Math.round(quality*9/16):ratio==='1:1'?quality:Math.round(quality*16/9);
+ const height=ratio==='9:16'?quality:quality,ms=1000/fps,seconds=durationSeconds();
+ const originalStyle=map.getContainer().getAttribute('style');
+ const chunks=[];
+ const cleanup=()=>{
+  exportActive=false;renderStart.disabled=false;renderCancel.style.display='none';
+  cancelAnimationFrame(raf);if(stream)stream.getTracks().forEach(t=>t.stop());
+  if(audio)audio.cleanup();
+  pausePro();
+  if(originalStyle===null)map.getContainer().removeAttribute('style');else map.getContainer().setAttribute('style',originalStyle);
+  document.body.classList.remove('rendering');map.resize();
+ };
+ try{
+  pausePro();seekPro(0);
+  document.body.classList.add('rendering');
+  const el=map.getContainer();el.style.cssText='position:fixed!important;top:0!important;left:0!important;width:'+width+'px!important;height:'+height+'px!important;max-width:none!important;max-height:none!important;z-index:100!important;transform:none!important;';
+  map.resize();
+  await new Promise(ok=>setTimeout(ok,1800));
+  if(map.getCanvas().width<width*.8||map.getCanvas().height<height*.8)throw Error('Harita tuvali istenen çözünürlüğe büyütülemedi. Tarayıcı GPU sınırını kontrol edin.');
+  exportCanvas=document.createElement('canvas');exportCanvas.width=width;exportCanvas.height=height;
+  frameCtx=exportCanvas.getContext('2d',{alpha:false});if(!frameCtx)throw Error('Video çizim alanı açılamadı.');
+  const mapCanvas=map.getCanvas();
+  // Detect raster CORS issues BEFORE recording, with a security-sensitive pixel read.
+  const probe=document.createElement('canvas');probe.width=4;probe.height=4;
+  const pc=probe.getContext('2d');pc.drawImage(mapCanvas,0,0,4,4);pc.getImageData(0,0,1,1);
+  stream=exportCanvas.captureStream(fps);
+  if(studio('renderAudio').checked&&voiceAudio.src){
+   try{audio=await createExportAudio();if(audio.track)stream.addTrack(audio.track);}
+   catch(err){throw Error('Seslendirme ses kanalına bağlanamadı: '+err.message);}
+  }
+  recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:quality===2160?42000000:quality===1080?18000000:8000000,audioBitsPerSecond:160000});
+  exportRecorder=recorder;
+  recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data);};
+  recorder.onerror=e=>{renderNote('Kayıt hatası: '+(e.error?.message||'bilinmeyen hata'));exportStopped=true;};
+  recorder.onstop=()=>{
+   cleanup();
+   if(!chunks.length){renderNote('Video kaydı oluşturulamadı.');return;}
+   const ext=mime.startsWith('video/mp4')?'mp4':'webm',blob=new Blob(chunks,{type:mime}),url=URL.createObjectURL(blob);
+   const link=document.createElement('a');link.href=url;link.download='rotavido-'+ratio.replace(':','x')+'-'+quality+'p-'+fps+'fps.'+ext;document.body.appendChild(link);link.click();link.remove();
+   setTimeout(()=>URL.revokeObjectURL(url),60000);
+   renderNote('Video indirildi: '+ext.toUpperCase()+' • '+width+'×'+height+' • '+fps+' FPS'+(audio?.track?' • sesli':' • sessiz')+'.');
+  };
+  recorder.start(1000);
+  exportRecorder=recorder;
+  if(audio?.track){voiceAudio.currentTime=0;voiceAudio.playbackRate=1;try{await voiceAudio.play();}catch(e){throw Error('Ses başlatılamadı: '+e.message);}}
+  let begin=performance.now(),lastDraw=-ms;
+  const frame=now=>{
+   if(exportStopped||!exportActive)return;
+   const elapsed=Math.min(seconds,(now-begin)/1000);
+   // Real time encoding; actual frame cadence depends on browser/PC load.
+   seekPro(elapsed);
+   if(now-lastDraw>=ms-2){
+    const cw=mapCanvas.width,ch=mapCanvas.height;
+    frameCtx.fillStyle='#071324';frameCtx.fillRect(0,0,width,height);
+    const scale=Math.max(width/cw,height/ch),sw=width/scale,sh=height/scale;
+    frameCtx.drawImage(mapCanvas,Math.max(0,(cw-sw)/2),Math.max(0,(ch-sh)/2),sw,sh,0,0,width,height);
+    renderOverlay(frameCtx,studio('landCard'),width*.2,height*.72,width,height);
+    renderOverlay(frameCtx,studio('finalCard'),width*.2,height*.72,width,height);
+    lastDraw=now;renderProgress.value=elapsed/seconds*100;
+    renderNote('Kaydediliyor: %'+Math.floor(renderProgress.value)+' • '+mime.split(';')[0].replace('video/','').toUpperCase());
+   }
+   if(elapsed>=seconds){exportStopped=true;if(recorder.state==='recording')recorder.stop();return;}
+   raf=requestAnimationFrame(frame);
+  };
+  raf=requestAnimationFrame(frame);
+ }catch(err){
+  if(recorder&&recorder.state!=='inactive')try{recorder.stop();}catch(e){}
+  cleanup();
+  renderNote('Render başlatılamadı: '+err.message+'. Harita görselleri izin vermiyorsa kayıt yapılamaz.');
+ }
+};
+renderCancel.onclick=()=>{if(!exportActive)return;exportStopped=true;if(exportRecorder&&exportRecorder.state==='recording'){exportRecorder.stop();renderNote('Kayıt durduruldu; oluşan bölüm indiriliyor.');}};
+
+</script></body></html>
