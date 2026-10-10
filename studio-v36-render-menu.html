@@ -790,15 +790,18 @@ function renderOverlay(ctx,el,x,y,w,h){
  ctx.font='bold 31px Arial';ctx.fillStyle='#fff';ctx.fillText(el.querySelector('strong')?.textContent||'',Math.max(10,px)+20,Math.max(8,py)+38,cw-30);
  const info=el.querySelector('span')?.textContent||'';ctx.font='21px Arial';ctx.fillText(info,Math.max(10,px)+20,Math.max(8,py)+72,cw-30);ctx.restore();
 }
+let exportAudioContext=null,exportAudioSource=null;
 async function createExportAudio(){
  if(!studio('renderAudio').checked||!voiceAudio.src)return {track:null,cleanup:()=>{}};
- const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
- const target=audioCtx.createMediaStreamDestination();
- const source=audioCtx.createMediaElementSource(voiceAudio);
- source.connect(target);source.connect(audioCtx.destination);
- const gain=audioCtx.createGain(); // volume remains controlled by voiceAudio.volume
- await audioCtx.resume();
- return {track:target.stream.getAudioTracks()[0],cleanup:()=>{try{source.disconnect();target.disconnect();audioCtx.close();}catch(e){}}};
+ if(!exportAudioContext){
+  exportAudioContext=new (window.AudioContext||window.webkitAudioContext)();
+  exportAudioSource=exportAudioContext.createMediaElementSource(voiceAudio);
+  exportAudioSource.connect(exportAudioContext.destination);
+ }
+ const destination=exportAudioContext.createMediaStreamDestination();
+ exportAudioSource.connect(destination);
+ await exportAudioContext.resume();
+ return {track:destination.stream.getAudioTracks()[0],cleanup:()=>{try{exportAudioSource.disconnect(destination);}catch(e){}}};
 }
 renderStart.onclick=async()=>{
  if(exportActive)return;
@@ -830,7 +833,8 @@ renderStart.onclick=async()=>{
   document.body.classList.add('rendering');
   const el=map.getContainer();el.style.cssText='position:fixed!important;top:0!important;left:0!important;width:'+width+'px!important;height:'+height+'px!important;max-width:none!important;max-height:none!important;z-index:100!important;transform:none!important;';
   map.resize();
-  await new Promise(ok=>setTimeout(ok,1200));
+  await new Promise(ok=>setTimeout(ok,1800));
+  if(map.getCanvas().width<width*.8||map.getCanvas().height<height*.8)throw Error('Harita tuvali istenen çözünürlüğe büyütülemedi. Tarayıcı GPU sınırını kontrol edin.');
   exportCanvas=document.createElement('canvas');exportCanvas.width=width;exportCanvas.height=height;
   frameCtx=exportCanvas.getContext('2d',{alpha:false});if(!frameCtx)throw Error('Video çizim alanı açılamadı.');
   const mapCanvas=map.getCanvas();
@@ -866,8 +870,8 @@ renderStart.onclick=async()=>{
    if(now-lastDraw>=ms-2){
     const cw=mapCanvas.width,ch=mapCanvas.height;
     frameCtx.fillStyle='#071324';frameCtx.fillRect(0,0,width,height);
-    const zoom=Math.max(width/cw,height/ch),sw=width/zoom,sh=height/zoom;
-    frameCtx.drawImage(mapCanvas,(cw-sw)/2,(ch-sh)/2,sw,sh,0,0,width,height);
+    const scale=Math.max(width/cw,height/ch),sw=width/scale,sh=height/scale;
+    frameCtx.drawImage(mapCanvas,Math.max(0,(cw-sw)/2),Math.max(0,(ch-sh)/2),sw,sh,0,0,width,height);
     renderOverlay(frameCtx,studio('landCard'),width*.2,height*.72,width,height);
     renderOverlay(frameCtx,studio('finalCard'),width*.2,height*.72,width,height);
     lastDraw=now;renderProgress.value=elapsed/seconds*100;
